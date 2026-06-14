@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Merch OPH 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0d1b4b; --navy2: #1e2d6b;
+      --pink: #db2777; --pink-l: #f472b6; --pink-bg: #fdf2f8;
+      --bg: #f1f5f9; --card: #fff;
+      --g200: #e2e8f0; --g400: #94a3b8; --g700: #475569;
+      --green: #10b981; --amber: #f59e0b; --red: #ef4444;
+      --r: 14px; --rs: 8px;
+      --sh: 0 1px 4px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+    }
+    body { font-family:'Sarabun',sans-serif; background:var(--bg); color:var(--navy); min-height:100vh; }
+
+    /* HEADER */
+    .hdr { background:var(--navy); color:#fff; padding:16px 20px 20px; }
+    .hdr-inner { max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+    .hdr-left { display:flex; align-items:center; gap:14px; }
+    .hdr-logo { background:#fff; border-radius:10px; padding:6px 14px; display:flex; align-items:center; }
+    .hdr-logo img { height:38px; width:auto; display:block; }
+    .hdr-left .tag { font-size:10px; font-weight:700; letter-spacing:2px; color:#f5c500; text-transform:uppercase; }
+    .hdr-left h1 { font-size:20px; font-weight:800; margin-top:2px; }
+    .hdr-btns { display:flex; gap:10px; flex-wrap:wrap; }
+    .btn { padding:9px 18px; border-radius:var(--rs); font-size:13px; font-weight:700; font-family:'Sarabun',sans-serif; cursor:pointer; border:none; transition:all .15s; }
+    .btn-p { background:var(--pink); color:white; }
+    .btn-p:hover { background:#be185d; }
+    .btn-g { background:var(--green); color:white; }
+    .btn-g:hover { background:#059669; }
+    .btn-o { background:rgba(255,255,255,.12); color:white; border:1px solid rgba(255,255,255,.2); }
+    .btn-o:hover { background:rgba(255,255,255,.2); }
+
+    /* LAYOUT */
+    .wrap { max-width:1100px; margin:0 auto; padding:20px; }
+
+    /* LAST UPDATED */
+    .meta { font-size:12px; color:var(--g400); margin-bottom:16px; }
+
+    /* STAT CARDS */
+    .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:20px; }
+    .stat { background:var(--card); border-radius:var(--r); box-shadow:var(--sh); padding:16px 18px; }
+    .stat-lbl { font-size:11px; font-weight:700; color:var(--g400); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
+    .stat-val { font-size:28px; font-weight:800; }
+    .stat-sub { font-size:12px; color:var(--g700); margin-top:2px; }
+    .c-pink { color:var(--pink); }
+    .c-green { color:var(--green); }
+    .c-amber { color:var(--amber); }
+    .c-navy { color:var(--navy); }
+
+    /* GRID 2-COL */
+    .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+    @media(max-width:700px){ .grid2 { grid-template-columns:1fr; } }
+
+    /* CARD */
+    .card { background:var(--card); border-radius:var(--r); box-shadow:var(--sh); overflow:hidden; }
+    .card-hdr { padding:14px 18px; border-bottom:1px solid var(--g200); display:flex; align-items:center; justify-content:space-between; }
+    .card-title { font-size:15px; font-weight:700; }
+    .card-body { padding:16px 18px; }
+
+    /* ITEM SUMMARY TABLE */
+    .item-table { width:100%; border-collapse:collapse; font-size:13px; }
+    .item-table th { text-align:left; font-size:10px; font-weight:700; color:var(--g400); text-transform:uppercase; letter-spacing:.5px; padding:6px 8px; border-bottom:2px solid var(--g200); }
+    .item-table td { padding:8px 8px; border-bottom:1px solid var(--g200); vertical-align:middle; }
+    .item-table tr:last-child td { border-bottom:none; }
+    .item-table tr:hover td { background:#fafbff; }
+    .bar-wrap { display:flex; align-items:center; gap:8px; }
+    .bar-bg { flex:1; height:6px; background:var(--g200); border-radius:3px; overflow:hidden; }
+    .bar-fill { height:100%; background:var(--pink); border-radius:3px; transition:width .4s; }
+    .bar-fill.green { background:var(--green); }
+    .bar-fill.amber { background:var(--amber); }
+
+    /* SHIPPING SPLIT */
+    .ship-split { display:flex; gap:0; border-radius:var(--rs); overflow:hidden; height:28px; margin-top:8px; }
+    .ship-seg { display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:white; transition:width .4s; min-width:0; overflow:hidden; }
+    .seg-pickup { background:var(--navy2); }
+    .seg-postal { background:var(--pink); }
+    .ship-legend { display:flex; gap:16px; margin-top:8px; font-size:12px; color:var(--g700); }
+    .ship-dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:4px; }
+
+    /* ORDERS TABLE */
+    .tbl-wrap { overflow-x:auto; margin-top:4px; }
+    .orders-tbl { width:100%; border-collapse:collapse; font-size:13px; white-space:nowrap; }
+    .orders-tbl th { text-align:left; font-size:10px; font-weight:700; color:var(--g400); text-transform:uppercase; letter-spacing:.5px; padding:8px 10px; border-bottom:2px solid var(--g200); position:sticky; top:0; background:white; }
+    .orders-tbl td { padding:8px 10px; border-bottom:1px solid var(--g200); vertical-align:middle; }
+    .orders-tbl tr:last-child td { border-bottom:none; }
+    .orders-tbl tr:hover td { background:#fafbff; }
+    .badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; }
+    .badge-wait { background:#fef3c7; color:#92400e; }
+    .badge-ok   { background:#d1fae5; color:#065f46; }
+    .badge-ship { background:#dbeafe; color:#1e40af; }
+
+    /* FILTER BAR */
+    .filter-bar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; padding:12px 18px; border-bottom:1px solid var(--g200); }
+    .filter-bar input[type="text"] { padding:7px 12px; border:2px solid var(--g200); border-radius:var(--rs); font-size:13px; font-family:'Sarabun',sans-serif; color:var(--navy); width:180px; }
+    .filter-bar input:focus { outline:none; border-color:var(--pink); }
+    .filter-bar select { padding:7px 28px 7px 10px; border:2px solid var(--g200); border-radius:var(--rs); font-size:13px; font-family:'Sarabun',sans-serif; color:var(--navy); background:white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%2394a3b8' d='M5 6 0 0h10z'/%3E%3C/svg%3E") no-repeat right 8px center; appearance:none; cursor:pointer; }
+    .filter-bar select:focus { outline:none; border-color:var(--pink); }
+    .row-count { font-size:12px; color:var(--g400); margin-left:auto; }
+
+    /* LOADER */
+    .loader { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px; gap:14px; }
+    .spin { width:40px; height:40px; border:4px solid var(--g200); border-top-color:var(--pink); border-radius:50%; animation:spin .7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .loader-txt { font-size:14px; color:var(--g700); }
+
+    /* EMPTY */
+    .empty { text-align:center; padding:60px 20px; color:var(--g400); }
+    .empty-icon { font-size:48px; margin-bottom:12px; }
+    .empty-txt { font-size:15px; }
+
+    /* STATUS PILL */
+    .status-sel { appearance:none; border:none; border-radius:20px; padding:3px 10px; font-size:11px; font-weight:700; font-family:'Sarabun',sans-serif; cursor:pointer; }
+    .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%) translateY(-80px); background:#1e293b; color:white; padding:10px 18px; border-radius:var(--rs); font-size:13px; font-weight:600; z-index:300; transition:transform .3s; }
+    .toast.show { transform:translateX(-50%) translateY(0); }
+    .toast.ok { background:var(--green); }
+  </style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-inner">
+    <div class="hdr-left">
+      <div class="hdr-logo">
+        <img src="logo.png" alt="MWIT 36th Anniversary">
+      </div>
+      <div>
+        <div class="tag">Admin · Merch OPH 2026</div>
+        <h1>📦 ภาพรวมออเดอร์สินค้าที่ระลึก</h1>
+      </div>
+    </div>
+    <div class="hdr-btns">
+      <button class="btn btn-o" onclick="loadData()">🔄 รีเฟรช</button>
+      <button class="btn btn-g" onclick="exportCSV()">⬇ Export CSV</button>
+      <a href="index.html" class="btn btn-p" style="text-decoration:none;">+ ดูฟอร์ม</a>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="meta" id="meta-txt">กำลังโหลดข้อมูล...</div>
+
+  <!-- STAT CARDS -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-lbl">ออเดอร์ทั้งหมด</div>
+      <div class="stat-val c-navy" id="s-orders">–</div>
+      <div class="stat-sub" id="s-orders-sub">–</div>
+    </div>
+    <div class="stat">
+      <div class="stat-lbl">รายได้รวม</div>
+      <div class="stat-val c-pink" id="s-revenue">–</div>
+      <div class="stat-sub">฿ (ก่อนหักค่าใช้จ่าย)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-lbl">รอยืนยัน</div>
+      <div class="stat-val c-amber" id="s-pending">–</div>
+      <div class="stat-sub">ออเดอร์</div>
+    </div>
+    <div class="stat">
+      <div class="stat-lbl">จัดส่งไปรษณีย์</div>
+      <div class="stat-val c-green" id="s-postal">–</div>
+      <div class="stat-sub" id="s-pickup-sub">รับเองอีก – ออเดอร์</div>
+    </div>
+  </div>
+
+  <!-- ROW: item summary + shipping split -->
+  <div class="grid2">
+
+    <!-- Item Summary -->
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">สรุปจำนวนสินค้าทั้งหมด</div></div>
+      <div class="card-body" id="item-summary">
+        <div class="loader"><div class="spin"></div><div class="loader-txt">กำลังโหลด...</div></div>
+      </div>
+    </div>
+
+    <!-- Shipping + Detail breakdown -->
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">การจัดส่ง</div></div>
+      <div class="card-body" id="ship-summary">
+        <div class="loader"><div class="spin"></div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ORDERS TABLE -->
+  <div class="card" style="margin-bottom:24px;">
+    <div class="card-hdr">
+      <div class="card-title">รายการออเดอร์ทั้งหมด</div>
+    </div>
+    <div class="filter-bar">
+      <input type="text" id="search" placeholder="🔍 ค้นหา ชื่อ / เบอร์ / ref..." oninput="renderTable()">
+      <select id="flt-ship" onchange="renderTable()">
+        <option value="">ทุกวิธีรับ</option>
+        <option value="pickup">รับที่โรงเรียน</option>
+        <option value="postal">ไปรษณีย์</option>
+      </select>
+      <select id="flt-status" onchange="renderTable()">
+        <option value="">ทุกสถานะ</option>
+        <option value="รอยืนยัน">รอยืนยัน</option>
+        <option value="ยืนยันแล้ว">ยืนยันแล้ว</option>
+        <option value="จัดส่งแล้ว">จัดส่งแล้ว</option>
+      </select>
+      <span class="row-count" id="row-count"></span>
+    </div>
+    <div class="tbl-wrap">
+      <table class="orders-tbl">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Order Ref</th>
+            <th>ชื่อ</th>
+            <th>เบอร์</th>
+            <th>สินค้า (สรุป)</th>
+            <th>ค่าส่ง</th>
+            <th>รวม</th>
+            <th>รับของ</th>
+            <th>Ref โอน</th>
+            <th>สลิป</th>
+            <th>สถานะ</th>
+          </tr>
+        </thead>
+        <tbody id="orders-tbody">
+          <tr><td colspan="11"><div class="loader"><div class="spin"></div></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+// ── CONFIG ──────────────────────────────────────────
+const GAS_URL = 'PASTE_YOUR_GAS_DEPLOYMENT_URL_HERE';
+
+// ── STATE ──────────────────────────────────────────
+let allOrders = [];
+
+// ── LOAD ───────────────────────────────────────────
+async function loadData() {
+  document.getElementById('meta-txt').textContent = 'กำลังโหลดข้อมูล...';
+  try {
+    const res = await fetch(`${GAS_URL}?action=all`);
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error);
+    allOrders = json.orders || [];
+    renderAll();
+    document.getElementById('meta-txt').textContent = `อัปเดตล่าสุด: ${new Date().toLocaleString('th-TH')} · ${allOrders.length} ออเดอร์`;
+  } catch (e) {
+    document.getElementById('meta-txt').textContent = '⚠ โหลดข้อมูลไม่ได้ — ตรวจสอบ GAS_URL';
+    renderMock();
+  }
+}
+
+// ── RENDER ALL ─────────────────────────────────────
+function renderAll() {
+  renderStats();
+  renderItemSummary();
+  renderShipSummary();
+  renderTable();
+}
+
+// ── STATS ──────────────────────────────────────────
+function renderStats() {
+  const total = allOrders.length;
+  const revenue = allOrders.reduce((s, o) => s + num(o['รวมทั้งหมด']), 0);
+  const pending = allOrders.filter(o => o['สถานะ'] === 'รอยืนยัน').length;
+  const postal  = allOrders.filter(o => o['วิธีรับ'] === 'postal').length;
+  const pickup  = total - postal;
+
+  document.getElementById('s-orders').textContent    = total;
+  document.getElementById('s-orders-sub').textContent= `ยืนยันแล้ว ${allOrders.filter(o=>o['สถานะ']==='ยืนยันแล้ว').length} ออเดอร์`;
+  document.getElementById('s-revenue').textContent   = revenue.toLocaleString() + ' ฿';
+  document.getElementById('s-pending').textContent   = pending;
+  document.getElementById('s-postal').textContent    = postal;
+  document.getElementById('s-pickup-sub').textContent= `รับเองอีก ${pickup} ออเดอร์`;
+}
+
+// ── ITEM SUMMARY ───────────────────────────────────
+function renderItemSummary() {
+  const totals = {
+    'พวงกุญแจ มังกร MWIT':   sumCol('พวง_มังกรMWIT'),
+    'พวงกุญแจ โลโก้ 36 ปี':  sumCol('พวง_โลโก้36ปี'),
+    'พวงกุญแจ มาสคอต':       sumCol('พวง_มาสคอต'),
+    'สติ๊กเกอร์ Science':     sumCol('สติ๊ก_ScienceSeries'),
+    'สติ๊กเกอร์ School Life': sumCol('สติ๊ก_SchoolLifeSeries'),
+    'กระเป๋า Canvas Tote':    sumCol('กระเป๋า'),
+    'เสื้อ S ขาว':  sumCol('เสื้อ_S_ขาว'),  'เสื้อ M ขาว': sumCol('เสื้อ_M_ขาว'),
+    'เสื้อ L ขาว':  sumCol('เสื้อ_L_ขาว'),  'เสื้อ XL ขาว': sumCol('เสื้อ_XL_ขาว'),
+    'เสื้อ S กรมท่า':  sumCol('เสื้อ_S_กรมท่า'),  'เสื้อ M กรมท่า': sumCol('เสื้อ_M_กรมท่า'),
+    'เสื้อ L กรมท่า':  sumCol('เสื้อ_L_กรมท่า'),  'เสื้อ XL กรมท่า': sumCol('เสื้อ_XL_กรมท่า'),
+    'เซ็ต A': sumCol('SetA_qty'),
+    'เซ็ต B': sumCol('SetB_qty'),
+  };
+  const max = Math.max(...Object.values(totals), 1);
+  const colors = ['','','','','','green','amber','amber','amber','amber','amber','amber','amber','amber','amber','',''];
+
+  const rows = Object.entries(totals)
+    .filter(([,v]) => v > 0)
+    .map(([label, qty], i) => {
+      const pct = Math.round((qty / max) * 100);
+      const cl = colors[i] || '';
+      return `<tr>
+        <td style="font-weight:600;">${label}</td>
+        <td style="width:120px;">
+          <div class="bar-wrap">
+            <div class="bar-bg"><div class="bar-fill ${cl}" style="width:${pct}%"></div></div>
+            <span style="font-weight:700;min-width:24px;text-align:right;">${qty}</span>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+
+  document.getElementById('item-summary').innerHTML = rows
+    ? `<table class="item-table"><thead><tr><th>สินค้า / ตัวเลือก</th><th>จำนวนรวม</th></tr></thead><tbody>${rows}</tbody></table>`
+    : '<div class="empty"><div class="empty-icon">📊</div><div class="empty-txt">ยังไม่มีออเดอร์</div></div>';
+}
+
+// ── SHIPPING SUMMARY ───────────────────────────────
+function renderShipSummary() {
+  const total  = allOrders.length || 1;
+  const postal = allOrders.filter(o => o['วิธีรับ'] === 'postal').length;
+  const pickup = total - postal;
+  const pPostal = Math.round((postal / total) * 100);
+  const pPickup = 100 - pPostal;
+
+  const setA = sumCol('SetA_qty');
+  const setB = sumCol('SetB_qty');
+
+  document.getElementById('ship-summary').innerHTML = `
+    <div style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+        <span>🏫 รับที่โรงเรียน <strong>${pickup}</strong></span>
+        <span>📮 ไปรษณีย์ <strong>${postal}</strong></span>
+      </div>
+      <div class="ship-split">
+        <div class="ship-seg seg-pickup" style="width:${pPickup}%">${pPickup > 10 ? pPickup+'%' : ''}</div>
+        <div class="ship-seg seg-postal" style="width:${pPostal}%">${pPostal > 10 ? pPostal+'%' : ''}</div>
+      </div>
+    </div>
+    <table class="item-table">
+      <thead><tr><th>ประเภท</th><th>จำนวน</th></tr></thead>
+      <tbody>
+        <tr><td>รับเอง (ฟรี)</td><td><strong>${pickup}</strong> ออเดอร์</td></tr>
+        <tr><td>ส่งไปรษณีย์ (+50฿)</td><td><strong>${postal}</strong> ออเดอร์</td></tr>
+        <tr><td style="color:var(--g400);font-size:12px;">── เซ็ต A ทั้งหมด</td><td>${setA} เซ็ต</td></tr>
+        <tr><td style="color:var(--g400);font-size:12px;">── เซ็ต B ทั้งหมด</td><td>${setB} เซ็ต</td></tr>
+        <tr><td><strong>รายได้ค่าส่งรวม</strong></td><td><strong style="color:var(--pink)">${(postal * 50).toLocaleString()} ฿</strong></td></tr>
+      </tbody>
+    </table>`;
+}
+
+// ── ORDERS TABLE ───────────────────────────────────
+function renderTable() {
+  const search    = document.getElementById('search').value.toLowerCase();
+  const fltShip   = document.getElementById('flt-ship').value;
+  const fltStatus = document.getElementById('flt-status').value;
+
+  let filtered = allOrders.filter(o => {
+    const matchSearch = !search ||
+      (o['ชื่อ']||'').toLowerCase().includes(search) ||
+      (o['เบอร์โทร']||'').includes(search) ||
+      (o['OrderRef']||'').toLowerCase().includes(search);
+    const matchShip = !fltShip || o['วิธีรับ'] === fltShip;
+    const matchSts  = !fltStatus || o['สถานะ'] === fltStatus;
+    return matchSearch && matchShip && matchSts;
+  });
+
+  document.getElementById('row-count').textContent = `${filtered.length} รายการ`;
+
+  if (!filtered.length) {
+    document.getElementById('orders-tbody').innerHTML =
+      `<tr><td colspan="11"><div class="empty"><div class="empty-icon">🔍</div><div class="empty-txt">ไม่พบรายการ</div></div></td></tr>`;
+    return;
+  }
+
+  document.getElementById('orders-tbody').innerHTML = filtered.map((o, i) => {
+    const itemSummary = buildItemSummary(o);
+    const shipLabel   = o['วิธีรับ'] === 'postal' ? '📮 ไปรษณีย์' : '🏫 รับเอง';
+    const slipLink    = o['URL_สลิป'] ? `<a href="${o['URL_สลิป']}" target="_blank" style="color:var(--pink);text-decoration:none;font-weight:700;">ดูสลิป</a>` : '–';
+    const statusBadge = statusBadgeHtml(o['สถานะ']);
+    return `<tr>
+      <td style="color:var(--g400);">${i+1}</td>
+      <td style="font-family:monospace;font-size:11px;color:var(--navy2);">${o['OrderRef']||'–'}</td>
+      <td><strong>${o['ชื่อ']||'–'}</strong>${o['LINE_IG']?`<br><span style="font-size:11px;color:var(--g400);">${o['LINE_IG']}</span>`:''}</td>
+      <td>${o['เบอร์โทร']||'–'}</td>
+      <td style="max-width:200px;white-space:normal;font-size:12px;line-height:1.5;">${itemSummary}</td>
+      <td>${num(o['ค่าส่ง']) ? num(o['ค่าส่ง'])+' ฿' : '<span style="color:var(--green);font-weight:700;">ฟรี</span>'}</td>
+      <td style="font-weight:800;color:var(--pink);">${num(o['รวมทั้งหมด']).toLocaleString()} ฿</td>
+      <td>${shipLabel}${o['ที่อยู่']?`<br><span style="font-size:11px;color:var(--g700);white-space:normal;">${o['ที่อยู่'].substring(0,40)}…</span>`:''}</td>
+      <td style="font-family:monospace;">${o['เลขอ้างอิง']||'–'}</td>
+      <td>${slipLink}</td>
+      <td>${statusBadge}</td>
+    </tr>`;
+  }).join('');
+}
+
+function buildItemSummary(o) {
+  const parts = [];
+  if (num(o['พวง_มังกรMWIT']))    parts.push(`พวง มังกร×${o['พวง_มังกรMWIT']}`);
+  if (num(o['พวง_โลโก้36ปี']))    parts.push(`พวง โลโก้36×${o['พวง_โลโก้36ปี']}`);
+  if (num(o['พวง_มาสคอต']))       parts.push(`พวง มาสคอต×${o['พวง_มาสคอต']}`);
+  if (num(o['สติ๊ก_ScienceSeries']))   parts.push(`สติ๊ก Sci×${o['สติ๊ก_ScienceSeries']}`);
+  if (num(o['สติ๊ก_SchoolLifeSeries'])) parts.push(`สติ๊ก School×${o['สติ๊ก_SchoolLifeSeries']}`);
+  if (num(o['กระเป๋า']))          parts.push(`กระเป๋า×${o['กระเป๋า']}`);
+  ['S','M','L','XL'].forEach(s=>['ขาว','กรมท่า'].forEach(c=>{
+    const q = num(o[`เสื้อ_${s}_${c}`]);
+    if (q) parts.push(`เสื้อ${s}${c[0]}×${q}`);
+  }));
+  if (num(o['SetA_qty'])) parts.push(`SetA×${o['SetA_qty']}`);
+  if (num(o['SetB_qty'])) parts.push(`SetB×${o['SetB_qty']}`);
+  return parts.join(', ') || '–';
+}
+
+function statusBadgeHtml(status) {
+  const map = { 'รอยืนยัน': 'badge-wait', 'ยืนยันแล้ว': 'badge-ok', 'จัดส่งแล้ว': 'badge-ship' };
+  const cls = map[status] || 'badge-wait';
+  return `<span class="badge ${cls}">${status || 'รอยืนยัน'}</span>`;
+}
+
+// ── EXPORT CSV ─────────────────────────────────────
+function exportCSV() {
+  if (!allOrders.length) { toast('ไม่มีข้อมูลให้ export'); return; }
+  const headers = Object.keys(allOrders[0]);
+  const rows = [headers, ...allOrders.map(o => headers.map(h => `"${(o[h]||'').toString().replace(/"/g,'""')}"` ))];
+  const csv = '﻿' + rows.map(r => r.join(',')).join('\n'); // BOM for Thai chars in Excel
+  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `merch_orders_${new Date().toISOString().slice(0,10)}.csv`;
+  link.click();
+  toast('ดาวน์โหลด CSV แล้ว ✓', 'ok');
+}
+
+// ── MOCK DATA (when GAS_URL not set) ───────────────
+function renderMock() {
+  allOrders = [
+    { OrderRef:'MWIT-20260615-1234', ชื่อ:'สมชาย ใจดี', เบอร์โทร:'0812345678', LINE_IG:'somchai_ig',
+      วิธีรับ:'postal', ที่อยู่:'123 ถ.พระราม กรุงเทพฯ 10100',
+      พวง_มังกรMWIT:2, พวง_โลโก้36ปี:0, พวง_มาสคอต:1,
+      'สติ๊ก_ScienceSeries':0, 'สติ๊ก_SchoolLifeSeries':2,
+      กระเป๋า:1, เสื้อ_L_ขาว:1, เสื้อ_M_กรมท่า:0,
+      เสื้อ_S_ขาว:0, เสื้อ_M_ขาว:0, เสื้อ_XL_ขาว:0, เสื้อ_S_กรมท่า:0, เสื้อ_L_กรมท่า:0, เสื้อ_XL_กรมท่า:0,
+      SetA_qty:1, SetA_ลายพวง:'มังกร MWIT', SetA_ลายสติ๊ก:'Science Series',
+      SetB_qty:0, SetB_ลายพวง:'', SetB_ลายสติ๊ก:'', SetB_ไซส์:'', SetB_สี:'',
+      ราคาสินค้า:641, ค่าส่ง:50, รวมทั้งหมด:691, URL_สลิป:'', เลขอ้างอิง:'482910', สถานะ:'รอยืนยัน' },
+    { OrderRef:'MWIT-20260615-5678', ชื่อ:'มานี มีใจ', เบอร์โทร:'0898765432', LINE_IG:'',
+      วิธีรับ:'pickup', ที่อยู่:'',
+      พวง_มังกรMWIT:0, พวง_โลโก้36ปี:1, พวง_มาสคอต:0,
+      'สติ๊ก_ScienceSeries':1, 'สติ๊ก_SchoolLifeSeries':0,
+      กระเป๋า:0, เสื้อ_L_ขาว:0, เสื้อ_M_กรมท่า:1,
+      เสื้อ_S_ขาว:0, เสื้อ_M_ขาว:0, เสื้อ_XL_ขาว:0, เสื้อ_S_กรมท่า:0, เสื้อ_L_กรมท่า:0, เสื้อ_XL_กรมท่า:0,
+      SetA_qty:0, SetA_ลายพวง:'', SetA_ลายสติ๊ก:'',
+      SetB_qty:1, SetB_ลายพวง:'มาสคอต', SetB_ลายสติ๊ก:'School Life Series', SetB_ไซส์:'M', SetB_สี:'กรมท่า',
+      ราคาสินค้า:822, ค่าส่ง:0, รวมทั้งหมด:822, URL_สลิป:'', เลขอ้างอิง:'881234', สถานะ:'ยืนยันแล้ว' },
+  ];
+  renderAll();
+  document.getElementById('meta-txt').textContent = '⚠ Demo mode — ตั้งค่า GAS_URL เพื่อดูข้อมูลจริง';
+}
+
+// ── UTILS ──────────────────────────────────────────
+function num(v) { return parseInt(v) || 0; }
+function sumCol(col) { return allOrders.reduce((s, o) => s + num(o[col]), 0); }
+
+let toastTimer;
+function toast(msg, type='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'toast' + (type?' '+type:'');
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ── INIT ───────────────────────────────────────────
+loadData();
+</script>
+</body>
+</html>

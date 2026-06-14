@@ -1,0 +1,248 @@
+// ═══════════════════════════════════════════════════════════
+//  Merch Order Form · Google Apps Script Backend
+//  OPH 2026 × MWIT 36 ปี
+//
+//  SETUP INSTRUCTIONS:
+//  1. Create a new Google Sheet → copy the Sheet ID from the URL
+//  2. Create a folder in Google Drive for slips → copy the Folder ID
+//  3. Paste both IDs in CONFIG below
+//  4. In GAS editor: Deploy → New deployment → Web app
+//     Execute as: Me | Who has access: Anyone
+//  5. Copy the deployment URL → paste into index.html and admin.html
+// ═══════════════════════════════════════════════════════════
+
+const CONFIG = {
+  SHEET_ID:        'PASTE_YOUR_GOOGLE_SHEET_ID_HERE',
+  SHEET_NAME:      'Orders',
+  SUMMARY_SHEET:   'Summary',
+  DRIVE_FOLDER_ID: 'PASTE_YOUR_DRIVE_FOLDER_ID_HERE'
+};
+
+// Column headers — order matters, must match buildRow()
+const HEADERS = [
+  'Timestamp', 'OrderRef', 'ชื่อ', 'เบอร์โทร', 'LINE_IG',
+  'วิธีรับ', 'ที่อยู่',
+  'พวง_มังกรMWIT', 'พวง_โลโก้36ปี', 'พวง_มาสคอต',
+  'สติ๊ก_ScienceSeries', 'สติ๊ก_SchoolLifeSeries',
+  'กระเป๋า',
+  'เสื้อ_S_ขาว', 'เสื้อ_M_ขาว', 'เสื้อ_L_ขาว', 'เสื้อ_XL_ขาว',
+  'เสื้อ_S_กรมท่า', 'เสื้อ_M_กรมท่า', 'เสื้อ_L_กรมท่า', 'เสื้อ_XL_กรมท่า',
+  'SetA_qty', 'SetA_ลายพวง', 'SetA_ลายสติ๊ก',
+  'SetB_qty', 'SetB_ลายพวง', 'SetB_ลายสติ๊ก', 'SetB_ไซส์', 'SetB_สี',
+  'ราคาสินค้า', 'ค่าส่ง', 'รวมทั้งหมด',
+  'URL_สลิป', 'เลขอ้างอิง', 'เวลาโอน', 'หมายเหตุ', 'สถานะ'
+];
+
+// ── POST: รับ order จาก frontend ─────────────────────────
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+
+    // Upload slip to Drive if provided
+    let slipUrl = '';
+    if (data.payment && data.payment.slipBase64 && data.payment.slipBase64.length > 100) {
+      slipUrl = uploadSlip(data.payment.slipBase64, data.orderRef || 'unknown');
+    }
+
+    const ss    = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    const sheet = getOrCreateSheet(ss, CONFIG.SHEET_NAME);
+
+    sheet.appendRow(buildRow(data, slipUrl));
+
+    return ok({ orderRef: data.orderRef });
+
+  } catch (err) {
+    return fail(err.message);
+  }
+}
+
+// ── GET: ส่งข้อมูลทั้งหมดให้ admin page ─────────────────
+function doGet(e) {
+  try {
+    const ss    = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    const sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
+
+    if (!sheet || sheet.getLastRow() <= 1) {
+      return ok({ orders: [], summary: {} });
+    }
+
+    const rows    = sheet.getDataRange().getValues();
+    const headers = rows[0];
+    const orders  = rows.slice(1).map(row => {
+      const obj = {};
+      headers.forEach((h, i) => { obj[h] = row[i]; });
+      return obj;
+    });
+
+    return ok({ orders, summary: buildSummary(orders) });
+
+  } catch (err) {
+    return fail(err.message);
+  }
+}
+
+// ── BUILD ROW ────────────────────────────────────────────
+function buildRow(d, slipUrl) {
+  const items = d.items    || {};
+  const kc    = items.keychain || {};
+  const st    = items.sticker  || {};
+  const ts    = items.tshirt   || {};
+  const sA    = items.setA     || {};
+  const sB    = items.setB     || {};
+  const pay   = d.payment  || {};
+  const price = d.pricing  || {};
+  const ship  = d.shipping || {};
+  const cust  = d.customer || {};
+
+  return [
+    new Date(),
+    d.orderRef        || '',
+    cust.name         || '',
+    cust.phone        || '',
+    cust.lineig       || '',
+    ship.method       || '',
+    ship.address      || '',
+    n(kc['มังกร MWIT']),
+    n(kc['โลโก้ 36 ปี']),
+    n(kc['มาสคอต']),
+    n(st['Science Series']),
+    n(st['School Life Series']),
+    n(items.tote),
+    n(ts['S_ขาว']),  n(ts['M_ขาว']),  n(ts['L_ขาว']),  n(ts['XL_ขาว']),
+    n(ts['S_กรมท่า']), n(ts['M_กรมท่า']), n(ts['L_กรมท่า']), n(ts['XL_กรมท่า']),
+    n(sA.qty), sA.keychain || '', sA.sticker || '',
+    n(sB.qty), sB.keychain || '', sB.sticker || '', sB.size || '', sB.color || '',
+    n(price.subtotal),
+    n(price.shippingCost),
+    n(price.total),
+    slipUrl,
+    pay.refNumber     || '',
+    pay.datetime      || '',
+    d.notes           || '',
+    'รอยืนยัน'
+  ];
+}
+
+// ── SUMMARY for admin ────────────────────────────────────
+function buildSummary(orders) {
+  const s = {
+    totalOrders: orders.length,
+    totalRevenue: orders.reduce((t, o) => t + n(o['รวมทั้งหมด']), 0),
+    shipping: {
+      pickup: orders.filter(o => o['วิธีรับ'] === 'pickup').length,
+      postal: orders.filter(o => o['วิธีรับ'] === 'postal').length
+    },
+    items: {}
+  };
+
+  // Aggregate every numeric column
+  const numCols = HEADERS.filter((_, i) => i >= 7 && i <= 28);
+  numCols.forEach(col => {
+    s.items[col] = orders.reduce((t, o) => t + n(o[col]), 0);
+  });
+
+  return s;
+}
+
+// ── DRIVE: อัปโหลดสลิป ────────────────────────────────────
+function uploadSlip(base64Data, orderRef) {
+  try {
+    const raw    = base64Data.includes(',') ? base64Data.split(',')[1] : base64Data;
+    const blob   = Utilities.newBlob(Utilities.base64Decode(raw), 'image/jpeg', `slip_${orderRef}.jpg`);
+    const folder = DriveApp.getFolderById(CONFIG.DRIVE_FOLDER_ID);
+    const file   = folder.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    return file.getUrl();
+  } catch (_) {
+    return ''; // slip upload failed — don't block the order
+  }
+}
+
+// ── SHEET INIT ────────────────────────────────────────────
+function getOrCreateSheet(ss, name) {
+  let sheet = ss.getSheetByName(name);
+  if (!sheet) {
+    sheet = ss.insertSheet(name);
+    sheet.appendRow(HEADERS);
+    sheet.setFrozenRows(1);
+    // Style header row
+    const hdrRange = sheet.getRange(1, 1, 1, HEADERS.length);
+    hdrRange.setBackground('#0d1b4b').setFontColor('#ffffff').setFontWeight('bold');
+    sheet.setColumnWidth(1, 150);  // Timestamp
+    sheet.setColumnWidth(2, 180);  // OrderRef
+    sheet.setColumnWidth(3, 140);  // ชื่อ
+    sheet.setColumnWidth(7, 250);  // ที่อยู่
+  }
+  return sheet;
+}
+
+// ── HELPERS ───────────────────────────────────────────────
+function n(v)    { return parseInt(v) || 0; }
+function ok(d)   { return resp({ success: true,  ...d }); }
+function fail(m) { return resp({ success: false, error: m }); }
+function resp(d) {
+  return ContentService
+    .createTextOutput(JSON.stringify(d))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ── OPTIONAL: สร้าง Summary sheet อัตโนมัติ ──────────────
+// เรียกด้วยมือจาก GAS editor เพื่อสร้าง Summary tab
+function setupSummarySheet() {
+  const ss     = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+  let sumSheet = ss.getSheetByName(CONFIG.SUMMARY_SHEET);
+  if (sumSheet) ss.deleteSheet(sumSheet);
+  sumSheet = ss.insertSheet(CONFIG.SUMMARY_SHEET, 0);
+
+  // Reference the Orders sheet column letters for SUMIF
+  const data = [
+    ['📦 สรุปสินค้าที่ระลึก OPH 2026 × MWIT 36 ปี', '', ''],
+    ['(อัปเดตอัตโนมัติเมื่อมีออเดอร์ใหม่)', '', ''],
+    [''],
+    ['สินค้า / ตัวเลือก', 'รับเอง', 'ส่งไปรษณีย์', 'รวม'],
+    ['พวงกุญแจ มังกร MWIT',    '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!H2:H10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!H2:H10000)', '=B5+C5'],
+    ['พวงกุญแจ โลโก้ 36 ปี',   '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!I2:I10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!I2:I10000)', '=B6+C6'],
+    ['พวงกุญแจ มาสคอต',        '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!J2:J10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!J2:J10000)', '=B7+C7'],
+    ['สติ๊กเกอร์ Science Series',    '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!K2:K10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!K2:K10000)', '=B8+C8'],
+    ['สติ๊กเกอร์ School Life Series', '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!L2:L10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!L2:L10000)', '=B9+C9'],
+    ['กระเป๋า Canvas Tote',    '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!M2:M10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!M2:M10000)', '=B10+C10'],
+    ['เสื้อ S ขาว',   '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!N2:N10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!N2:N10000)', '=B11+C11'],
+    ['เสื้อ M ขาว',   '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!O2:O10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!O2:O10000)', '=B12+C12'],
+    ['เสื้อ L ขาว',   '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!P2:P10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!P2:P10000)', '=B13+C13'],
+    ['เสื้อ XL ขาว',  '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!Q2:Q10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!Q2:Q10000)', '=B14+C14'],
+    ['เสื้อ S กรมท่า',  '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!R2:R10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!R2:R10000)', '=B15+C15'],
+    ['เสื้อ M กรมท่า',  '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!S2:S10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!S2:S10000)', '=B16+C16'],
+    ['เสื้อ L กรมท่า',  '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!T2:T10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!T2:T10000)', '=B17+C17'],
+    ['เสื้อ XL กรมท่า', '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!U2:U10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!U2:U10000)', '=B18+C18'],
+    ['เซ็ต A',  '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!V2:V10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!V2:V10000)', '=B19+C19'],
+    ['เซ็ต B',  '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!Y2:Y10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!Y2:Y10000)', '=B20+C20'],
+    [''],
+    ['💰 การเงิน', '', '', ''],
+    ['รายได้สินค้ารวม', '', '', '=SUM(Orders!AD2:AD10000)'],
+    ['รายได้ค่าส่งรวม', '', '', '=SUM(Orders!AE2:AE10000)'],
+    ['รายได้ทั้งหมด',   '', '', '=SUM(Orders!AF2:AF10000)'],
+    [''],
+    ['📊 ออเดอร์', '', '', ''],
+    ['ออเดอร์ทั้งหมด',   '', '', '=COUNTA(Orders!B2:B10000)'],
+    ['รับที่โรงเรียน',    '', '', '=COUNTIF(Orders!F2:F10000,"pickup")'],
+    ['ส่งไปรษณีย์',       '', '', '=COUNTIF(Orders!F2:F10000,"postal")'],
+    ['รอยืนยัน',          '', '', '=COUNTIF(Orders!AJ2:AJ10000,"รอยืนยัน")'],
+    ['ยืนยันแล้ว',         '', '', '=COUNTIF(Orders!AJ2:AJ10000,"ยืนยันแล้ว")'],
+    ['จัดส่งแล้ว',         '', '', '=COUNTIF(Orders!AJ2:AJ10000,"จัดส่งแล้ว")'],
+  ];
+
+  sumSheet.getRange(1, 1, data.length, 4).setValues(data);
+
+  // Header styling
+  sumSheet.getRange(1,1,1,4).setBackground('#0d1b4b').setFontColor('#ffffff').setFontWeight('bold').setFontSize(13);
+  sumSheet.getRange(4,1,1,4).setBackground('#db2777').setFontColor('#ffffff').setFontWeight('bold');
+  sumSheet.getRange(22,1,1,4).setBackground('#1e3a8a').setFontColor('#ffffff').setFontWeight('bold');
+  sumSheet.getRange(27,1,1,4).setBackground('#1e3a8a').setFontColor('#ffffff').setFontWeight('bold');
+  sumSheet.setFrozenRows(4);
+  sumSheet.setColumnWidth(1, 220);
+  sumSheet.setColumnWidth(2, 110);
+  sumSheet.setColumnWidth(3, 130);
+  sumSheet.setColumnWidth(4, 110);
+
+  SpreadsheetApp.getUi().alert('✅ สร้าง Summary sheet เรียบร้อย! เปิดแท็บ Summary ดูได้เลย');
+}

@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pre-order สินค้าที่ระลึก | OPH 2026 × MWIT 36 ปี</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0d1b4b;
+      --navy2: #1e2d6b;
+      --gold: #c9970a;
+      --gold-l: #f5c500;
+      --gold-bg: #fffbeb;
+      --pink: #db2777;
+      --pink-l: #f472b6;
+      --pink-bg: #fdf2f8;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --g100: #f8fafc;
+      --g200: #e2e8f0;
+      --g400: #94a3b8;
+      --g700: #475569;
+      --green: #10b981;
+      --red: #ef4444;
+      --r: 14px; --rs: 8px;
+      --sh: 0 1px 4px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+    }
+    body { font-family:'Sarabun',sans-serif; background:var(--bg); color:var(--navy); min-height:100vh; padding-bottom:120px; }
+
+    /* ── HEADER ── */
+    .hdr { background:var(--navy); color:#fff; padding:24px 16px 32px; text-align:center; position:relative; overflow:hidden; }
+    .hdr::before { content:''; position:absolute; top:-60px; right:-60px; width:200px; height:200px; border-radius:50%; background:rgba(245,197,0,.06); pointer-events:none; }
+    .hdr::after { content:''; position:absolute; bottom:-1px; left:0; right:0; height:24px; background:var(--bg); border-radius:24px 24px 0 0; }
+    .hdr-logo-pill { display:inline-block; background:#fff; border-radius:16px; padding:10px 24px; margin-bottom:14px; box-shadow:0 2px 12px rgba(0,0,0,.2); }
+    .hdr-logo-pill img { height:52px; width:auto; display:block; }
+    .hdr-tag { font-size:10px; font-weight:700; letter-spacing:2.5px; text-transform:uppercase; color:var(--gold-l); margin-bottom:6px; }
+    .hdr-title { font-size:26px; font-weight:800; line-height:1.2; }
+    .hdr-title span { color:var(--gold-l); }
+    .hdr-sub { font-size:13px; color:rgba(255,255,255,.55); margin-top:4px; }
+    .hdr-badges { display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:12px; }
+    .hdr-badge { background:rgba(255,255,255,.1); border:1px solid rgba(245,197,0,.3); border-radius:20px; padding:4px 12px; font-size:11px; color:rgba(255,255,255,.85); }
+
+    /* ── LAYOUT ── */
+    .wrap { max-width:680px; margin:0 auto; padding:0 12px; }
+    .section { margin:20px 0; }
+    .sec-title { font-size:17px; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+    .sec-title::before { content:''; width:4px; height:20px; background:var(--gold-l); border-radius:2px; display:inline-block; flex-shrink:0; }
+
+    /* ── CARD ── */
+    .card { background:var(--card); border-radius:var(--r); box-shadow:var(--sh); overflow:hidden; margin-bottom:10px; }
+
+    /* ── PRODUCT CARD ── */
+    .pc { display:grid; grid-template-columns:88px 1fr; }
+    .pc-img { background:linear-gradient(135deg,var(--g200),var(--g100)); display:flex; align-items:center; justify-content:center; min-height:110px; flex-direction:column; gap:4px; }
+    .pc-img svg { width:52px; height:52px; }
+    .pc-img-label { font-size:9px; font-weight:700; color:var(--g400); letter-spacing:1px; text-transform:uppercase; }
+    .pc-body { padding:12px 14px 12px 12px; }
+    .pc-name { font-size:15px; font-weight:700; }
+    .pc-price { font-size:13px; color:var(--gold); font-weight:700; margin-bottom:8px; }
+    .design-row { display:flex; align-items:center; justify-content:space-between; padding:7px 0; border-top:1px solid var(--g200); gap:8px; }
+    .design-row:first-of-type { border-top:none; }
+    .dr-label { font-size:13px; color:var(--g700); flex:1; }
+
+    /* ── STEPPER ── */
+    .step { display:flex; align-items:center; gap:6px; }
+    .step-btn { width:28px; height:28px; border-radius:50%; border:2px solid var(--g200); background:white; font-size:17px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--navy); font-weight:700; transition:all .12s; flex-shrink:0; }
+    .step-btn:hover { border-color:var(--pink); color:var(--pink); }
+    .step-btn:active { transform:scale(.88); }
+    .step-n { min-width:22px; text-align:center; font-size:15px; font-weight:700; }
+
+    /* ── SHIRT GRID ── */
+    .shirt-wrap { padding:14px; }
+    .shirt-note { font-size:12px; color:var(--g400); margin-bottom:10px; }
+    .shirt-table { width:100%; border-collapse:separate; border-spacing:5px; }
+    .shirt-table th { font-size:11px; font-weight:700; color:var(--g400); text-align:center; padding:2px; }
+    .shirt-inp { width:44px; height:38px; border:2px solid var(--g200); border-radius:var(--rs); text-align:center; font-size:15px; font-weight:700; font-family:'Sarabun',sans-serif; color:var(--navy); background:white; transition:border-color .12s; display:block; margin:0 auto; }
+    .shirt-inp:focus { outline:none; border-color:var(--pink); }
+    .shirt-inp::-webkit-inner-spin-button, .shirt-inp::-webkit-outer-spin-button { -webkit-appearance:none; }
+
+    /* ── SET CARD ── */
+    .set-hdr { background:var(--navy); color:#fff; padding:14px 16px; }
+    .set-hdr-row { display:flex; justify-content:space-between; align-items:flex-start; }
+    .set-name { font-size:16px; font-weight:800; }
+    .set-inc { font-size:11px; color:rgba(255,255,255,.6); margin-top:2px; }
+    .set-prc { text-align:right; }
+    .set-prc-new { font-size:22px; font-weight:800; color:var(--pink-l); }
+    .set-prc-old { font-size:11px; color:rgba(255,255,255,.4); text-decoration:line-through; }
+    .set-save { font-size:11px; background:var(--gold-l); border-radius:20px; padding:2px 8px; color:var(--navy); font-weight:700; display:inline-block; margin-top:2px; }
+    .set-body { padding:14px; }
+    .set-opts { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; transition:all .2s; }
+    .set-opt-lbl { font-size:11px; font-weight:700; color:var(--g700); margin-bottom:4px; text-transform:uppercase; letter-spacing:.5px; }
+    .set-qty-row { display:flex; align-items:center; justify-content:space-between; padding-top:12px; border-top:1px solid var(--g200); }
+    .set-qty-txt { font-size:14px; font-weight:600; }
+
+    /* ── SELECT ── */
+    select { width:100%; padding:9px 30px 9px 10px; border:2px solid var(--g200); border-radius:var(--rs); font-size:13px; font-family:'Sarabun',sans-serif; color:var(--navy); background:white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%2394a3b8' d='M5 6 0 0h10z'/%3E%3C/svg%3E") no-repeat right 10px center; appearance:none; cursor:pointer; transition:border-color .12s; }
+    select:focus { outline:none; border-color:var(--pink); }
+    select.err { border-color:var(--red) !important; }
+
+    /* ── FORM FIELDS ── */
+    .fg { margin-bottom:14px; }
+    .flbl { display:block; font-size:12px; font-weight:700; color:var(--g700); margin-bottom:5px; text-transform:uppercase; letter-spacing:.5px; }
+    .flbl .req { color:var(--pink); }
+    input[type="text"], input[type="tel"], input[type="datetime-local"], textarea {
+      width:100%; padding:11px 14px; border:2px solid var(--g200); border-radius:var(--rs);
+      font-size:15px; font-family:'Sarabun',sans-serif; color:var(--navy); background:white; transition:border-color .12s;
+    }
+    input:focus, textarea:focus { outline:none; border-color:var(--pink); }
+    input.err, textarea.err { border-color:var(--red) !important; }
+    .ferr { font-size:11px; color:var(--red); margin-top:3px; display:none; }
+    .ferr.show { display:block; }
+    textarea { min-height:72px; resize:vertical; }
+
+    /* ── SHIPPING ── */
+    .ship-opts { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+    .ship-opt { border:2px solid var(--g200); border-radius:var(--rs); padding:14px 12px; cursor:pointer; transition:all .15s; position:relative; user-select:none; }
+    .ship-opt input { position:absolute; opacity:0; pointer-events:none; }
+    .ship-opt.sel { border-color:var(--pink); background:var(--pink-bg); }
+    .ship-opt-title { font-size:14px; font-weight:700; }
+    .ship-opt-sub { font-size:12px; color:var(--g700); margin-top:2px; }
+    .tag { display:inline-block; font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; margin-top:5px; }
+    .tag-free { background:#d1fae5; color:#065f46; }
+    .tag-paid { background:#fee2e2; color:#991b1b; }
+
+    /* ── UPLOAD ── */
+    .upload-area { border:2px dashed var(--g200); border-radius:var(--rs); padding:22px; text-align:center; cursor:pointer; transition:all .15s; position:relative; }
+    .upload-area:hover { border-color:var(--pink); background:var(--pink-bg); }
+    .upload-area input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+    .upload-ico { font-size:26px; margin-bottom:6px; }
+    .upload-txt { font-size:13px; color:var(--g700); font-weight:500; }
+    .upload-hint { font-size:11px; color:var(--g400); margin-top:3px; }
+    #slip-preview { max-width:100%; max-height:180px; border-radius:var(--rs); margin-top:10px; display:none; }
+    .slip-change { display:none; font-size:12px; color:var(--pink); cursor:pointer; margin-top:6px; text-align:center; }
+
+    /* ── PROMPTPAY BOX ── */
+    .pp-box { background:linear-gradient(135deg,var(--g100),white); border:1px solid var(--g200); border-radius:var(--rs); padding:14px 16px; display:flex; align-items:center; gap:14px; margin-bottom:14px; }
+    .pp-qr { width:60px; height:60px; background:white; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:22px; border:1px solid var(--g200); flex-shrink:0; }
+    .pp-lbl { font-size:10px; color:var(--g400); font-weight:700; text-transform:uppercase; letter-spacing:.5px; }
+    .pp-num { font-size:18px; font-weight:800; }
+    .pp-name { font-size:12px; color:var(--g700); margin-top:1px; }
+    .pp-amt { margin-left:auto; text-align:right; }
+    .pp-amt-lbl { font-size:10px; color:var(--g400); font-weight:700; text-transform:uppercase; }
+    .pp-amt-val { font-size:20px; font-weight:800; color:var(--pink); }
+
+    /* ── PRICE BAR ── */
+    .pbar { position:fixed; bottom:0; left:0; right:0; background:white; border-top:1px solid var(--g200); box-shadow:0 -4px 20px rgba(0,0,0,.1); padding:10px 16px; z-index:100; }
+    .pbar-inner { max-width:680px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .pbar-left { display:flex; flex-direction:column; gap:1px; }
+    .pbar-breakdown { display:flex; gap:14px; flex-wrap:wrap; }
+    .pbar-item { font-size:12px; color:var(--g700); }
+    .pbar-item strong { color:var(--navy); }
+    .pbar-total { font-size:22px; font-weight:800; }
+    .pbar-total span { color:var(--pink); }
+    .btn-p { background:var(--pink); color:white; border:none; padding:12px 22px; border-radius:var(--rs); font-size:15px; font-weight:700; font-family:'Sarabun',sans-serif; cursor:pointer; transition:all .15s; white-space:nowrap; flex-shrink:0; }
+    .btn-p:hover { background:#be185d; transform:translateY(-1px); }
+    .btn-p:active { transform:translateY(0); }
+    .btn-p:disabled { background:var(--g400); cursor:not-allowed; transform:none; }
+    .btn-s { background:white; color:var(--navy); border:2px solid var(--g200); padding:11px 20px; border-radius:var(--rs); font-size:15px; font-weight:700; font-family:'Sarabun',sans-serif; cursor:pointer; transition:all .15s; }
+    .btn-s:hover { border-color:var(--navy); }
+
+    /* ── SCREENS ── */
+    #scr-form { display:block; }
+    #scr-confirm, #scr-success { display:none; }
+    .hidden { display:none !important; }
+
+    /* ── CONFIRM ── */
+    #scr-confirm { padding:16px; max-width:680px; margin:0 auto; }
+    .cfm-hdr { text-align:center; padding:20px 0 16px; }
+    .cfm-title { font-size:22px; font-weight:800; }
+    .cfm-sub { font-size:13px; color:var(--g700); margin-top:4px; }
+    .cfm-section { margin-bottom:14px; }
+    .cfm-sec-title { font-size:11px; font-weight:700; color:var(--pink); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:8px; }
+    .cfm-row { display:flex; justify-content:space-between; align-items:flex-start; padding:7px 0; border-bottom:1px solid var(--g200); font-size:13px; gap:12px; }
+    .cfm-row:last-child { border-bottom:none; }
+    .cfm-key { color:var(--g700); flex:1; }
+    .cfm-val { font-weight:600; text-align:right; flex:1; }
+    .cfm-total-row { display:flex; justify-content:space-between; padding:14px 0 4px; font-size:19px; font-weight:800; }
+    .cfm-total-row .amt { color:var(--pink); }
+    .cfm-btns { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; padding-bottom:32px; }
+
+    /* ── SUCCESS ── */
+    #scr-success { max-width:500px; margin:0 auto; text-align:center; padding:40px 16px; }
+    .suc-icon { width:80px; height:80px; background:#d1fae5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-size:36px; }
+    .suc-title { font-size:24px; font-weight:800; margin-bottom:8px; }
+    .suc-sub { font-size:14px; color:var(--g700); line-height:1.7; margin-bottom:20px; }
+    .order-badge { display:inline-block; background:var(--pink-bg); color:var(--pink); padding:10px 24px; border-radius:30px; font-size:17px; font-weight:800; letter-spacing:1px; margin-bottom:24px; border:2px solid var(--pink-l); }
+    .suc-note { background:var(--g100); border-radius:var(--rs); padding:14px; font-size:13px; color:var(--g700); line-height:1.6; text-align:left; }
+
+    /* ── LOADING ── */
+    .loader { position:fixed; inset:0; background:rgba(13,27,75,.65); display:none; align-items:center; justify-content:center; z-index:200; }
+    .loader.show { display:flex; }
+    .loader-box { background:white; border-radius:var(--r); padding:32px 40px; text-align:center; }
+    .loader-spin { width:44px; height:44px; border:4px solid var(--g200); border-top-color:var(--pink); border-radius:50%; margin:0 auto 14px; animation:spin .7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .loader-txt { font-size:15px; color:var(--g700); }
+
+    /* ── TOAST ── */
+    .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%) translateY(-80px); background:#1e293b; color:white; padding:12px 20px; border-radius:var(--rs); font-size:14px; font-weight:600; z-index:300; transition:transform .3s; max-width:90%; text-align:center; }
+    .toast.show { transform:translateX(-50%) translateY(0); }
+    .toast.ok { background:var(--green); }
+    .toast.ng { background:var(--red); }
+
+    /* ── INFO NOTE ── */
+    .info { background:#fffbeb; border:1px solid #fcd34d; border-radius:var(--rs); padding:10px 14px; font-size:12px; color:#78350f; margin-bottom:12px; line-height:1.5; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width:480px) {
+      .hdr-title { font-size:22px; }
+      .pc { grid-template-columns:72px 1fr; }
+      .set-opts { grid-template-columns:1fr; }
+      .ship-opts { grid-template-columns:1fr; }
+      .pbar-breakdown { display:none; }
+      .cfm-btns { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     LOADING OVERLAY
+═══════════════════════════════════════════════════ -->
+<div class="loader" id="loader">
+  <div class="loader-box">
+    <div class="loader-spin"></div>
+    <div class="loader-txt" id="loader-txt">กำลังส่งข้อมูล...</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN: FORM
+═══════════════════════════════════════════════════ -->
+<div id="scr-form">
+
+  <!-- Header -->
+  <div class="hdr">
+    <div class="hdr-logo-pill">
+      <img src="logo_h.png" alt="MWIT 36th Anniversary">
+    </div>
+    <div class="hdr-tag">MWIT-SC 34 · IT Recruitment · Pre-order</div>
+    <div class="hdr-title">สั่งซื้อ<span>สินค้าที่ระลึก</span> OPH 2026</div>
+    <div class="hdr-sub">ครบรอบ 36 ปี มหิดลวิทยานุสรณ์</div>
+    <div class="hdr-badges">
+      <span class="hdr-badge">📦 สั่งหลายรายการได้</span>
+      <span class="hdr-badge">🚚 รับเองหรือส่งไปรษณีย์</span>
+      <span class="hdr-badge">💳 PromptPay</span>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <!-- ── SECTION: สินค้าเดี่ยว ── -->
+    <div class="section">
+      <div class="sec-title">สินค้าเดี่ยว</div>
+
+      <!-- Keychain -->
+      <div class="card pc">
+        <div class="pc-img">
+          <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="40" cy="28" r="18" fill="#db277730"/>
+            <circle cx="40" cy="28" r="13" fill="#db2777"/>
+            <circle cx="40" cy="28" r="5" fill="white"/>
+            <rect x="38.5" y="44" width="3" height="22" rx="1.5" fill="#94a3b8"/>
+            <rect x="35" y="60" width="10" height="3" rx="1.5" fill="#94a3b8"/>
+          </svg>
+          <div class="pc-img-label">พวงกุญแจ</div>
+        </div>
+        <div class="pc-body">
+          <div class="pc-name">พวงกุญแจอะคริลิค</div>
+          <div class="pc-price">69 ฿ / ชิ้น</div>
+          <div id="kc-rows"></div>
+        </div>
+      </div>
+
+      <!-- Sticker -->
+      <div class="card pc">
+        <div class="pc-img">
+          <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="12" y="18" width="56" height="44" rx="6" fill="#db277720"/>
+            <rect x="16" y="22" width="48" height="36" rx="4" fill="#db2777"/>
+            <rect x="22" y="30" width="36" height="2" rx="1" fill="white" opacity=".7"/>
+            <rect x="22" y="36" width="28" height="2" rx="1" fill="white" opacity=".5"/>
+            <rect x="22" y="42" width="20" height="2" rx="1" fill="white" opacity=".4"/>
+          </svg>
+          <div class="pc-img-label">สติ๊กเกอร์ A5</div>
+        </div>
+        <div class="pc-body">
+          <div class="pc-name">สติ๊กเกอร์ A5</div>
+          <div class="pc-price">35 ฿ / แผ่น</div>
+          <div id="st-rows"></div>
+        </div>
+      </div>
+
+      <!-- Tote -->
+      <div class="card">
+        <div style="display:flex;align-items:center;padding:14px;gap:14px;">
+          <div style="width:72px;height:72px;background:linear-gradient(135deg,var(--g200),var(--g100));border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 24l4 26h24l4-26H14z" fill="#db277730"/>
+              <path d="M14 24l4 26h24l4-26H14z" fill="#db2777" opacity=".7"/>
+              <path d="M22 24Q22 14 30 14Q38 14 38 24" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
+              <text x="30" y="44" text-anchor="middle" fill="white" font-size="8" font-weight="700" font-family="Arial">OPH26</text>
+            </svg>
+          </div>
+          <div style="flex:1;">
+            <div class="pc-name">กระเป๋าผ้า Canvas Tote</div>
+            <div class="pc-price">149 ฿ / ใบ · ลาย OPH26</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid var(--g200);">
+              <span style="font-size:13px;color:var(--g700);">จำนวน</span>
+              <div class="step">
+                <button class="step-btn" onclick="chgTote(-1)">−</button>
+                <span class="step-n" id="cnt-tote">0</span>
+                <button class="step-btn" onclick="chgTote(1)">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- T-Shirt -->
+      <div class="card">
+        <div style="display:flex;align-items:center;padding:14px 14px 0;gap:14px;">
+          <div style="width:72px;height:72px;background:linear-gradient(135deg,var(--g200),var(--g100));border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22 10 L10 22 L18 26 L18 52 L42 52 L42 26 L50 22 L38 10 Q34 18 30 18 Q26 18 22 10Z" fill="#db2777" opacity=".8"/>
+              <text x="30" y="40" text-anchor="middle" fill="white" font-size="7" font-weight="700" font-family="Arial">OPH26</text>
+            </svg>
+          </div>
+          <div style="flex:1;">
+            <div class="pc-name">เสื้อยืด</div>
+            <div class="pc-price">279 ฿ / ตัว · ลาย OPH26</div>
+          </div>
+        </div>
+        <div class="shirt-wrap">
+          <div class="shirt-note">กรอกจำนวนต่อ ไซส์ × สี (ไม่ต้องการเว้นว่าง)</div>
+          <table class="shirt-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>👕 ขาว</th>
+                <th>🔵 กรมท่า</th>
+              </tr>
+            </thead>
+            <tbody id="shirt-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION: เซ็ตสุดคุ้ม ── -->
+    <div class="section">
+      <div class="sec-title">เซ็ตสุดคุ้ม</div>
+
+      <!-- Set A -->
+      <div class="card">
+        <div class="set-hdr">
+          <div class="set-hdr-row">
+            <div>
+              <div class="set-name">เซ็ต A · คู่หู 🤝</div>
+              <div class="set-inc">พวงกุญแจ + สติ๊กเกอร์</div>
+              <span class="set-save">ประหยัด 15 ฿</span>
+            </div>
+            <div class="set-prc">
+              <div class="set-prc-new">89 ฿</div>
+              <div class="set-prc-old">104 ฿</div>
+            </div>
+          </div>
+        </div>
+        <div class="set-body">
+          <div class="set-opts" id="setA-opts" style="display:none;">
+            <div>
+              <div class="set-opt-lbl">ลายพวงกุญแจ <span style="color:var(--red)">*</span></div>
+              <select id="sA-kc" onchange="state.setA.keychain=this.value;rmErr(this)">
+                <option value="">เลือกลาย...</option>
+                <option>มังกร MWIT</option>
+                <option>โลโก้ 36 ปี</option>
+                <option>มาสคอต</option>
+              </select>
+            </div>
+            <div>
+              <div class="set-opt-lbl">ลายสติ๊กเกอร์ <span style="color:var(--red)">*</span></div>
+              <select id="sA-st" onchange="state.setA.sticker=this.value;rmErr(this)">
+                <option value="">เลือกลาย...</option>
+                <option>Science Series</option>
+                <option>School Life Series</option>
+              </select>
+            </div>
+          </div>
+          <div class="set-qty-row">
+            <div class="set-qty-txt">จำนวนเซ็ต</div>
+            <div class="step">
+              <button class="step-btn" onclick="chgSet('A',-1)">−</button>
+              <span class="step-n" id="cnt-setA">0</span>
+              <button class="step-btn" onclick="chgSet('A',1)">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Set B -->
+      <div class="card">
+        <div class="set-hdr">
+          <div class="set-hdr-row">
+            <div>
+              <div class="set-name">เซ็ต B · จัดเต็ม 🎁</div>
+              <div class="set-inc">พวงกุญแจ + สติ๊กเกอร์ + กระเป๋า + เสื้อ</div>
+              <span class="set-save">ประหยัด 83 ฿</span>
+            </div>
+            <div class="set-prc">
+              <div class="set-prc-new">449 ฿</div>
+              <div class="set-prc-old">532 ฿</div>
+            </div>
+          </div>
+        </div>
+        <div class="set-body">
+          <div class="set-opts" id="setB-opts" style="display:none;grid-template-columns:1fr 1fr;">
+            <div>
+              <div class="set-opt-lbl">ลายพวงกุญแจ <span style="color:var(--red)">*</span></div>
+              <select id="sB-kc" onchange="state.setB.keychain=this.value;rmErr(this)">
+                <option value="">เลือกลาย...</option>
+                <option>มังกร MWIT</option>
+                <option>โลโก้ 36 ปี</option>
+                <option>มาสคอต</option>
+              </select>
+            </div>
+            <div>
+              <div class="set-opt-lbl">ลายสติ๊กเกอร์ <span style="color:var(--red)">*</span></div>
+              <select id="sB-st" onchange="state.setB.sticker=this.value;rmErr(this)">
+                <option value="">เลือกลาย...</option>
+                <option>Science Series</option>
+                <option>School Life Series</option>
+              </select>
+            </div>
+            <div>
+              <div class="set-opt-lbl">ไซส์เสื้อ <span style="color:var(--red)">*</span></div>
+              <select id="sB-sz" onchange="state.setB.size=this.value;rmErr(this)">
+                <option value="">เลือกไซส์...</option>
+                <option>S</option><option>M</option><option>L</option><option>XL</option>
+              </select>
+            </div>
+            <div>
+              <div class="set-opt-lbl">สีเสื้อ <span style="color:var(--red)">*</span></div>
+              <select id="sB-cl" onchange="state.setB.color=this.value;rmErr(this)">
+                <option value="">เลือกสี...</option>
+                <option>ขาว</option><option>กรมท่า</option>
+              </select>
+            </div>
+          </div>
+          <div class="set-qty-row">
+            <div class="set-qty-txt">จำนวนเซ็ต</div>
+            <div class="step">
+              <button class="step-btn" onclick="chgSet('B',-1)">−</button>
+              <span class="step-n" id="cnt-setB">0</span>
+              <button class="step-btn" onclick="chgSet('B',1)">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION: ข้อมูลผู้สั่ง ── -->
+    <div class="section">
+      <div class="sec-title">ข้อมูลผู้สั่ง</div>
+      <div class="card" style="padding:16px;">
+        <div class="fg">
+          <label class="flbl">ชื่อ-นามสกุล <span class="req">*</span></label>
+          <input type="text" id="f-name" placeholder="เช่น สมชาย ใจดี" oninput="rmErrId('f-name')">
+          <div class="ferr" id="err-name">กรุณากรอกชื่อ-นามสกุล</div>
+        </div>
+        <div class="fg">
+          <label class="flbl">เบอร์โทรศัพท์ <span class="req">*</span></label>
+          <input type="tel" id="f-phone" placeholder="0XX-XXX-XXXX" oninput="rmErrId('f-phone')">
+          <div class="ferr" id="err-phone">กรุณากรอกเบอร์โทรที่ถูกต้อง (10 หลัก)</div>
+        </div>
+        <div class="fg" style="margin-bottom:0">
+          <label class="flbl">LINE ID / IG</label>
+          <input type="text" id="f-contact" placeholder="ไม่บังคับ">
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION: การจัดส่ง ── -->
+    <div class="section">
+      <div class="sec-title">การจัดส่ง</div>
+      <div class="card" style="padding:16px;">
+        <div class="ship-opts">
+          <label class="ship-opt sel" id="ship-pickup">
+            <input type="radio" name="shipping" value="pickup" checked onchange="onShipChange()">
+            <div class="ship-opt-title">🏫 รับที่โรงเรียน</div>
+            <div class="ship-opt-sub">MWIT วันที่นัดรับ</div>
+            <span class="tag tag-free">ฟรี</span>
+          </label>
+          <label class="ship-opt" id="ship-postal">
+            <input type="radio" name="shipping" value="postal" onchange="onShipChange()">
+            <div class="ship-opt-title">📮 ส่งไปรษณีย์</div>
+            <div class="ship-opt-sub">EMS / Kerry</div>
+            <span class="tag tag-paid">+50 ฿</span>
+          </label>
+        </div>
+        <div id="addr-wrap" style="display:none;">
+          <div class="fg">
+            <label class="flbl">ที่อยู่จัดส่ง (บ้านเลขที่ ถนน แขวง เขต จังหวัด รหัสไปรษณีย์) <span class="req">*</span></label>
+            <textarea id="f-addr" rows="3" placeholder="กรอกที่อยู่แบบเต็ม..." oninput="rmErrId('f-addr')"></textarea>
+            <div class="ferr" id="err-addr">กรุณากรอกที่อยู่จัดส่ง</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION: การชำระเงิน ── -->
+    <div class="section">
+      <div class="sec-title">การชำระเงิน</div>
+      <div class="card" style="padding:16px;">
+        <div class="info">💡 โอนเงินหลังยืนยันออเดอร์แล้ว แนบสลิปหรือเลขอ้างอิงด้านล่าง</div>
+        <div class="pp-box">
+          <div class="pp-qr">📱</div>
+          <div>
+            <div class="pp-lbl">PromptPay</div>
+            <div class="pp-num" id="pp-display-num">กรอก GAS URL แล้วอัปเดต</div>
+            <div class="pp-name" id="pp-display-name">ชื่อบัญชีผู้รับ</div>
+          </div>
+          <div class="pp-amt">
+            <div class="pp-amt-lbl">ยอดโอน</div>
+            <div class="pp-amt-val" id="pp-total">0 ฿</div>
+          </div>
+        </div>
+
+        <div class="fg">
+          <label class="flbl">แนบสลิปการโอน</label>
+          <div class="upload-area" id="upload-area">
+            <input type="file" accept="image/*" id="slip-file" onchange="onSlipChange(this)">
+            <div class="upload-ico">🧾</div>
+            <div class="upload-txt">แตะเพื่ออัปโหลดสลิป</div>
+            <div class="upload-hint">JPG / PNG · ไม่เกิน 5MB</div>
+          </div>
+          <img id="slip-preview">
+          <div class="slip-change" id="slip-change" onclick="document.getElementById('slip-file').click()">เปลี่ยนรูปสลิป</div>
+        </div>
+
+        <div class="fg">
+          <label class="flbl">เลขอ้างอิงธุรกรรม (6 หลักท้าย) <span class="req">*</span></label>
+          <input type="text" id="f-ref" placeholder="เช่น 482910" maxlength="10" oninput="rmErrId('f-ref')">
+          <div class="ferr" id="err-ref">กรุณากรอกเลขอ้างอิง</div>
+        </div>
+
+        <div class="fg" style="margin-bottom:0;">
+          <label class="flbl">หมายเหตุ / ข้อความเพิ่มเติม</label>
+          <textarea id="f-note" placeholder="เช่น แพ้ไปรษณีย์, ขอสลิปยืนยัน ฯลฯ"></textarea>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /wrap -->
+
+  <!-- ── PRICE BAR ── -->
+  <div class="pbar">
+    <div class="pbar-inner">
+      <div class="pbar-left">
+        <div class="pbar-breakdown">
+          <span class="pbar-item">สินค้า <strong id="pb-sub">0 ฿</strong></span>
+          <span class="pbar-item">ค่าส่ง <strong id="pb-ship">ฟรี</strong></span>
+        </div>
+        <div class="pbar-total">รวม <span id="pb-total">0 ฿</span></div>
+      </div>
+      <button class="btn-p" id="btn-review" onclick="goConfirm()">ตรวจสอบออเดอร์ →</button>
+    </div>
+  </div>
+
+</div><!-- /scr-form -->
+
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN: CONFIRM
+═══════════════════════════════════════════════════ -->
+<div id="scr-confirm">
+  <div class="cfm-hdr">
+    <div style="font-size:32px;margin-bottom:8px;">🛒</div>
+    <div class="cfm-title">ตรวจสอบออเดอร์</div>
+    <div class="cfm-sub">กรุณาตรวจสอบให้ถูกต้องก่อนยืนยัน</div>
+  </div>
+
+  <div class="card" style="padding:16px;margin-bottom:10px;">
+    <div class="cfm-section">
+      <div class="cfm-sec-title">📦 สินค้าที่สั่ง</div>
+      <div id="cfm-items"></div>
+    </div>
+  </div>
+
+  <div class="card" style="padding:16px;margin-bottom:10px;">
+    <div class="cfm-section">
+      <div class="cfm-sec-title">👤 ข้อมูลผู้สั่ง</div>
+      <div id="cfm-customer"></div>
+    </div>
+    <div class="cfm-section" style="margin-bottom:0;">
+      <div class="cfm-sec-title">🚚 การจัดส่ง</div>
+      <div id="cfm-shipping"></div>
+    </div>
+  </div>
+
+  <div class="card" style="padding:16px;margin-bottom:10px;">
+    <div class="cfm-section" style="margin-bottom:0;">
+      <div class="cfm-sec-title">💰 ราคาสรุป</div>
+      <div id="cfm-pricing"></div>
+    </div>
+  </div>
+
+  <div class="cfm-btns">
+    <button class="btn-s" onclick="goForm()">← แก้ไข</button>
+    <button class="btn-p" id="btn-submit" onclick="submitOrder()">✓ ยืนยันสั่งซื้อ</button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN: SUCCESS
+═══════════════════════════════════════════════════ -->
+<div id="scr-success">
+  <div class="suc-icon">✅</div>
+  <div class="suc-title">สั่งซื้อสำเร็จ!</div>
+  <div class="suc-sub">ขอบคุณที่สั่งซื้อสินค้าที่ระลึก<br>กรรมการจะตรวจสอบสลิปและยืนยันภายใน <strong>24 ชั่วโมง</strong></div>
+  <div class="order-badge" id="suc-ref">MWIT-XXXXXX</div>
+  <div class="suc-note" id="suc-summary"></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════ -->
+<script>
+// ──────────────────────────────────────────────────
+//  ⚙️  CONFIG — กรอกค่าเหล่านี้หลัง deploy GAS
+// ──────────────────────────────────────────────────
+const GAS_URL        = 'PASTE_YOUR_GAS_DEPLOYMENT_URL_HERE';
+const PROMPTPAY_NUM  = '06X-XXX-XXXX';   // เบอร์ / เลขบัตร PromptPay
+const PROMPTPAY_NAME = 'ชื่อ นามสกุล';   // ชื่อบัญชี
+
+// ──────────────────────────────────────────────────
+//  PRODUCT DATA
+// ──────────────────────────────────────────────────
+const P = { kc:69, st:35, tote:149, shirt:279, setA:89, setB:449, ship:50 };
+const KC_DESIGNS = ['มังกร MWIT','โลโก้ 36 ปี','มาสคอต'];
+const ST_DESIGNS = ['Science Series','School Life Series'];
+const SIZES      = ['S','M','L','XL'];
+const COLORS     = ['ขาว','กรมท่า'];
+
+// ──────────────────────────────────────────────────
+//  STATE
+// ──────────────────────────────────────────────────
+const state = {
+  kc:   Object.fromEntries(KC_DESIGNS.map(d=>[d,0])),
+  st:   Object.fromEntries(ST_DESIGNS.map(d=>[d,0])),
+  tote: 0,
+  shirt: Object.fromEntries(SIZES.flatMap(s=>COLORS.map(c=>[`${s}_${c}`,0]))),
+  setA: { qty:0, keychain:'', sticker:'' },
+  setB: { qty:0, keychain:'', sticker:'', size:'', color:'' },
+  slipB64: '', slipName: ''
+};
+
+// ──────────────────────────────────────────────────
+//  BUILD DYNAMIC HTML
+// ──────────────────────────────────────────────────
+function buildKcRows() {
+  document.getElementById('kc-rows').innerHTML = KC_DESIGNS.map(d=>`
+    <div class="design-row">
+      <span class="dr-label">${d}</span>
+      <div class="step">
+        <button class="step-btn" onclick="chgKc('${d}',-1)">−</button>
+        <span class="step-n" id="cnt-kc-${sid(d)}">0</span>
+        <button class="step-btn" onclick="chgKc('${d}',1)">+</button>
+      </div>
+    </div>`).join('');
+}
+
+function buildStRows() {
+  document.getElementById('st-rows').innerHTML = ST_DESIGNS.map(d=>`
+    <div class="design-row">
+      <span class="dr-label">${d}</span>
+      <div class="step">
+        <button class="step-btn" onclick="chgSt('${d}',-1)">−</button>
+        <span class="step-n" id="cnt-st-${sid(d)}">0</span>
+        <button class="step-btn" onclick="chgSt('${d}',1)">+</button>
+      </div>
+    </div>`).join('');
+}
+
+function buildShirtTable() {
+  document.getElementById('shirt-tbody').innerHTML = SIZES.map(s=>`
+    <tr>
+      <th style="font-size:13px;font-weight:700;text-align:left;padding:4px 0;">${s}</th>
+      ${COLORS.map(c=>`
+        <td><input type="number" class="shirt-inp" min="0" value="0" id="shirt-${s}-${c}"
+            oninput="chgShirt('${s}','${c}',this.value)"></td>`).join('')}
+    </tr>`).join('');
+}
+
+function sid(s){ return s.replace(/[^a-zA-Z0-9]/g,'_'); }
+
+// ──────────────────────────────────────────────────
+//  QUANTITY HANDLERS
+// ──────────────────────────────────────────────────
+function chgKc(d,delta){
+  state.kc[d]=Math.max(0,(state.kc[d]||0)+delta);
+  document.getElementById(`cnt-kc-${sid(d)}`).textContent=state.kc[d];
+  refreshPrice();
+}
+function chgSt(d,delta){
+  state.st[d]=Math.max(0,(state.st[d]||0)+delta);
+  document.getElementById(`cnt-st-${sid(d)}`).textContent=state.st[d];
+  refreshPrice();
+}
+function chgTote(delta){
+  state.tote=Math.max(0,state.tote+delta);
+  document.getElementById('cnt-tote').textContent=state.tote;
+  refreshPrice();
+}
+function chgShirt(s,c,v){
+  state.shirt[`${s}_${c}`]=Math.max(0,parseInt(v)||0);
+  refreshPrice();
+}
+function chgSet(set,delta){
+  const k = set==='A' ? 'setA' : 'setB';
+  state[k].qty = Math.max(0,state[k].qty+delta);
+  document.getElementById(`cnt-set${set}`).textContent=state[k].qty;
+  document.getElementById(`set${set}-opts`).style.display = state[k].qty>0 ? 'grid' : 'none';
+  refreshPrice();
+}
+
+// ──────────────────────────────────────────────────
+//  PRICE
+// ──────────────────────────────────────────────────
+function calcSub(){
+  let t=0;
+  Object.values(state.kc).forEach(q=>t+=q*P.kc);
+  Object.values(state.st).forEach(q=>t+=q*P.st);
+  t += state.tote*P.tote;
+  Object.values(state.shirt).forEach(q=>t+=q*P.shirt);
+  t += state.setA.qty*P.setA;
+  t += state.setB.qty*P.setB;
+  return t;
+}
+function getShipCost(){
+  return document.querySelector('input[name="shipping"]:checked')?.value==='postal' ? P.ship : 0;
+}
+function refreshPrice(){
+  const sub = calcSub();
+  const ship = getShipCost();
+  const tot = sub+ship;
+  document.getElementById('pb-sub').textContent  = sub.toLocaleString()+' ฿';
+  document.getElementById('pb-ship').textContent = ship ? ship+' ฿' : 'ฟรี';
+  document.getElementById('pb-total').textContent= tot.toLocaleString()+' ฿';
+  document.getElementById('pp-total').textContent= tot.toLocaleString()+' ฿';
+}
+
+// ──────────────────────────────────────────────────
+//  SHIPPING TOGGLE
+// ──────────────────────────────────────────────────
+function onShipChange(){
+  const isPostal = document.querySelector('input[name="shipping"]:checked')?.value==='postal';
+  document.getElementById('ship-pickup').classList.toggle('sel', !isPostal);
+  document.getElementById('ship-postal').classList.toggle('sel',  isPostal);
+  document.getElementById('addr-wrap').style.display = isPostal ? 'block' : 'none';
+  refreshPrice();
+}
+// Clickable label fix
+document.querySelectorAll('.ship-opt').forEach(el=>{
+  el.addEventListener('click',()=>{ el.querySelector('input').checked=true; onShipChange(); });
+});
+
+// ──────────────────────────────────────────────────
+//  SLIP UPLOAD
+// ──────────────────────────────────────────────────
+function onSlipChange(input){
+  if(!input.files[0]) return;
+  const file=input.files[0];
+  if(file.size>5*1024*1024){ toast('ไฟล์ใหญ่เกิน 5MB','ng'); return; }
+  state.slipName=file.name;
+  compressImg(file, 900, .75, b64=>{
+    state.slipB64=b64;
+    const prev=document.getElementById('slip-preview');
+    prev.src=b64; prev.style.display='block';
+    document.getElementById('slip-change').style.display='block';
+    document.getElementById('upload-area').style.display='none';
+  });
+}
+function compressImg(file,maxW,q,cb){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      let {width,height}=img;
+      if(width>maxW){ height=Math.round(height*maxW/width); width=maxW; }
+      const canvas=document.createElement('canvas');
+      canvas.width=width; canvas.height=height;
+      canvas.getContext('2d').drawImage(img,0,0,width,height);
+      cb(canvas.toDataURL('image/jpeg',q));
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ──────────────────────────────────────────────────
+//  VALIDATION
+// ──────────────────────────────────────────────────
+function validate(){
+  let ok=true;
+
+  // At least one item
+  const sub=calcSub();
+  if(sub===0){ toast('กรุณาเลือกสินค้าอย่างน้อย 1 รายการ','ng'); return false; }
+
+  // Set A options
+  if(state.setA.qty>0){
+    if(!state.setA.keychain){ markErr('sA-kc'); ok=false; }
+    if(!state.setA.sticker){  markErr('sA-st'); ok=false; }
+  }
+  // Set B options
+  if(state.setB.qty>0){
+    if(!state.setB.keychain){ markErr('sB-kc'); ok=false; }
+    if(!state.setB.sticker){  markErr('sB-st'); ok=false; }
+    if(!state.setB.size){     markErr('sB-sz'); ok=false; }
+    if(!state.setB.color){    markErr('sB-cl'); ok=false; }
+  }
+
+  // Customer
+  const name=document.getElementById('f-name').value.trim();
+  const phone=document.getElementById('f-phone').value.trim().replace(/-/g,'');
+  if(!name){ markErrId('f-name','err-name'); ok=false; }
+  if(!/^0[0-9]{8,9}$/.test(phone)){ markErrId('f-phone','err-phone'); ok=false; }
+
+  // Shipping
+  if(getShipCost()>0){
+    const addr=document.getElementById('f-addr').value.trim();
+    if(!addr){ markErrId('f-addr','err-addr'); ok=false; }
+  }
+
+  // Payment ref
+  const ref=document.getElementById('f-ref').value.trim();
+  if(!ref){ markErrId('f-ref','err-ref'); ok=false; }
+
+  if(!ok) toast('กรุณาตรวจสอบข้อมูลที่ยังไม่ครบ','ng');
+  return ok;
+}
+
+function markErr(id){ const el=document.getElementById(id); if(el) el.classList.add('err'); }
+function markErrId(inpId,errId){
+  document.getElementById(inpId)?.classList.add('err');
+  const e=document.getElementById(errId); if(e){ e.classList.add('show'); }
+}
+function rmErr(el){ el.classList.remove('err'); }
+function rmErrId(inpId){
+  document.getElementById(inpId)?.classList.remove('err');
+  const errId='err-'+inpId.replace('f-','');
+  document.getElementById(errId)?.classList.remove('show');
+}
+
+// ──────────────────────────────────────────────────
+//  NAVIGATION
+// ──────────────────────────────────────────────────
+function goConfirm(){
+  if(!validate()) return;
+  buildConfirmScreen();
+  document.getElementById('scr-form').style.display='none';
+  document.getElementById('scr-confirm').style.display='block';
+  window.scrollTo(0,0);
+}
+function goForm(){
+  document.getElementById('scr-confirm').style.display='none';
+  document.getElementById('scr-form').style.display='block';
+  window.scrollTo(0,0);
+}
+
+// ──────────────────────────────────────────────────
+//  BUILD CONFIRMATION SCREEN
+// ──────────────────────────────────────────────────
+function cfmRow(k,v){ return `<div class="cfm-row"><span class="cfm-key">${k}</span><span class="cfm-val">${v}</span></div>`; }
+
+function buildConfirmScreen(){
+  // Items
+  let itemsHtml='';
+  KC_DESIGNS.forEach(d=>{ if(state.kc[d]>0) itemsHtml+=cfmRow(`พวงกุญแจ ${d}`,`${state.kc[d]} ชิ้น × ${P.kc} ฿ = <b>${state.kc[d]*P.kc} ฿</b>`); });
+  ST_DESIGNS.forEach(d=>{ if(state.st[d]>0) itemsHtml+=cfmRow(`สติ๊กเกอร์ ${d}`,`${state.st[d]} แผ่น × ${P.st} ฿ = <b>${state.st[d]*P.st} ฿</b>`); });
+  if(state.tote>0) itemsHtml+=cfmRow('กระเป๋า Canvas Tote',`${state.tote} ใบ × ${P.tote} ฿ = <b>${state.tote*P.tote} ฿</b>`);
+  SIZES.forEach(s=>COLORS.forEach(c=>{
+    const q=state.shirt[`${s}_${c}`];
+    if(q>0) itemsHtml+=cfmRow(`เสื้อ ${s} (${c})`,`${q} ตัว × ${P.shirt} ฿ = <b>${q*P.shirt} ฿</b>`);
+  }));
+  if(state.setA.qty>0) itemsHtml+=cfmRow(`เซ็ต A (พวง: ${state.setA.keychain} / สติ๊ก: ${state.setA.sticker})`,`${state.setA.qty} เซ็ต × ${P.setA} ฿ = <b>${state.setA.qty*P.setA} ฿</b>`);
+  if(state.setB.qty>0) itemsHtml+=cfmRow(`เซ็ต B (พวง: ${state.setB.keychain} / สติ๊ก: ${state.setB.sticker} / ${state.setB.size} ${state.setB.color})`,`${state.setB.qty} เซ็ต × ${P.setB} ฿ = <b>${state.setB.qty*P.setB} ฿</b>`);
+  document.getElementById('cfm-items').innerHTML=itemsHtml||'<span style="color:var(--g400)">ไม่มีสินค้า</span>';
+
+  // Customer
+  const name=document.getElementById('f-name').value.trim();
+  const phone=document.getElementById('f-phone').value.trim();
+  const contact=document.getElementById('f-contact').value.trim();
+  document.getElementById('cfm-customer').innerHTML=
+    cfmRow('ชื่อ-นามสกุล',name)+cfmRow('เบอร์โทร',phone)+(contact?cfmRow('LINE/IG',contact):'');
+
+  // Shipping
+  const isPostal=getShipCost()>0;
+  const addr=document.getElementById('f-addr').value.trim();
+  document.getElementById('cfm-shipping').innerHTML=
+    cfmRow('วิธีรับ',isPostal?'📮 ส่งไปรษณีย์':'🏫 รับที่โรงเรียน')+(isPostal?cfmRow('ที่อยู่',addr):'');
+
+  // Pricing
+  const sub=calcSub(), ship=getShipCost(), tot=sub+ship;
+  document.getElementById('cfm-pricing').innerHTML=
+    cfmRow('ราคาสินค้า',`${sub.toLocaleString()} ฿`)+
+    cfmRow('ค่าจัดส่ง',ship?`${ship} ฿`:'ฟรี')+
+    `<div class="cfm-total-row"><span>ยอดชำระทั้งหมด</span><span class="amt">${tot.toLocaleString()} ฿</span></div>`;
+}
+
+// ──────────────────────────────────────────────────
+//  SUBMIT
+// ──────────────────────────────────────────────────
+function genRef(){
+  const d=new Date();
+  const dt=`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+  const rnd=Math.floor(Math.random()*9000+1000);
+  return `MWIT-${dt}-${rnd}`;
+}
+
+async function submitOrder(){
+  const btn=document.getElementById('btn-submit');
+  btn.disabled=true;
+  showLoader('กำลังส่งข้อมูล...');
+
+  const sub=calcSub(), ship=getShipCost();
+  const orderRef=genRef();
+
+  const payload={
+    orderRef,
+    customer:{
+      name: document.getElementById('f-name').value.trim(),
+      phone: document.getElementById('f-phone').value.trim(),
+      lineig: document.getElementById('f-contact').value.trim()
+    },
+    items:{
+      keychain: state.kc,
+      sticker:  state.st,
+      tote:     state.tote,
+      tshirt:   state.shirt,
+      setA:     state.setA,
+      setB:     state.setB
+    },
+    shipping:{
+      method: getShipCost()>0 ? 'postal' : 'pickup',
+      address: document.getElementById('f-addr').value.trim()
+    },
+    payment:{
+      refNumber: document.getElementById('f-ref').value.trim(),
+      slipBase64: state.slipB64,
+      slipName:   state.slipName
+    },
+    pricing:{ subtotal:sub, shippingCost:ship, total:sub+ship },
+    notes: document.getElementById('f-note').value.trim()
+  };
+
+  try {
+    // text/plain avoids CORS preflight on GAS
+    await fetch(GAS_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify(payload)
+    });
+    hideLoader();
+    showSuccess(orderRef, payload);
+  } catch(e){
+    hideLoader();
+    toast('เกิดข้อผิดพลาด กรุณาลองใหม่ หรือติดต่อกรรมการ','ng');
+    btn.disabled=false;
+  }
+}
+
+function showSuccess(ref, payload){
+  document.getElementById('scr-confirm').style.display='none';
+  document.getElementById('scr-success').style.display='block';
+  window.scrollTo(0,0);
+
+  document.getElementById('suc-ref').textContent=ref;
+  const sub=payload.pricing.subtotal, ship=payload.pricing.shippingCost;
+  document.getElementById('suc-summary').innerHTML=`
+    <strong>สรุปออเดอร์</strong><br>
+    📦 ราคาสินค้า: ${sub.toLocaleString()} ฿<br>
+    🚚 ค่าจัดส่ง: ${ship ? ship+' ฿' : 'ฟรี'}<br>
+    💰 ยอดรวม: <strong style="color:var(--pink)">${(sub+ship).toLocaleString()} ฿</strong><br><br>
+    ${payload.shipping.method==='postal' ? `📮 ที่อยู่: ${payload.shipping.address}<br><br>` : ''}
+    กรรมการจะยืนยันออเดอร์ทาง LINE / โทร <strong>${payload.customer.phone}</strong>`;
+}
+
+// ──────────────────────────────────────────────────
+//  UI HELPERS
+// ──────────────────────────────────────────────────
+function showLoader(msg){
+  document.getElementById('loader-txt').textContent=msg;
+  document.getElementById('loader').classList.add('show');
+}
+function hideLoader(){ document.getElementById('loader').classList.remove('show'); }
+
+let toastTimer;
+function toast(msg,type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.className='toast'+(type?' '+type:'');
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+// ──────────────────────────────────────────────────
+//  INIT
+// ──────────────────────────────────────────────────
+document.getElementById('pp-display-num').textContent  = PROMPTPAY_NUM;
+document.getElementById('pp-display-name').textContent = PROMPTPAY_NAME;
+buildKcRows();
+buildStRows();
+buildShirtTable();
+refreshPrice();
+</script>
+</body>
+</html>
