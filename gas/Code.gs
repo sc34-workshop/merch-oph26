@@ -39,6 +39,23 @@ const STATUS_COL  = HEADERS.length;      // col 37 = AK  (สถานะ text)
 const CONFIRM_COL = HEADERS.length + 1;  // col 38 = AL  ✅ ยืนยันชำระเงิน
 const DELIVER_COL = HEADERS.length + 2;  // col 39 = AM  🚚 จัดส่งแล้ว
 
+// Column groups: [startCol, endCol, headerBg, label]
+// Each group gets its own header colour; lane dividers go on data rows too.
+const GROUPS = [
+  [1,   5,  '#0d1b4b', 'ข้อมูลออเดอร์'],
+  [6,   7,  '#065f46', 'การจัดส่ง'],
+  [8,  10,  '#4c1d95', 'พวงกุญแจ 🔑'],
+  [11, 12,  '#831843', 'สติ๊กเกอร์ 📋'],
+  [13, 13,  '#064e3b', 'กระเป๋า 👜'],
+  [14, 17,  '#92400e', 'เสื้อขาว 👕'],
+  [18, 21,  '#1e3a5f', 'เสื้อกรมท่า 👕'],
+  [22, 24,  '#3730a3', 'เซ็ต A 🎁'],
+  [25, 29,  '#1d4ed8', 'เซ็ต B 🎁'],
+  [30, 32,  '#14532d', '💰 ราคา'],
+  [33, 36,  '#334155', 'การชำระเงิน'],
+  [37, 37,  '#7f1d1d', 'สถานะ'],
+];
+
 // ── ONEDIT TRIGGER (simple trigger — runs automatically) ──
 // When staff tick/untick a checkbox, สถานะ updates instantly.
 function onEdit(e) {
@@ -250,42 +267,50 @@ function ensureHeaders(sheet) {
 
 function styleHeaderRow(sheet) {
   sheet.setFrozenRows(1);
-  const ncols = HEADERS.length;
-  sheet.getRange(1, 1, 1, ncols)
-    .setBackground('#0d1b4b')
-    .setFontColor('#ffffff')
-    .setFontWeight('bold')
-    .setFontSize(11);
 
-  // Column widths (one per header column)
+  // Per-group header colours
+  GROUPS.forEach(([start, end, bg]) => {
+    sheet.getRange(1, start, 1, end - start + 1)
+      .setBackground(bg)
+      .setFontColor('#ffffff')
+      .setFontWeight('bold')
+      .setFontSize(10)
+      .setHorizontalAlignment('center')
+      .setVerticalAlignment('middle');
+  });
+  sheet.setRowHeight(1, 32);
+  setColumnWidths(sheet);
+}
+
+function setColumnWidths(sheet) {
   const widths = [
-    160, // Timestamp
-    190, // OrderRef
-    140, // ชื่อ
-    110, // เบอร์โทร
-    120, // LINE_IG
-     90, // วิธีรับ
-    260, // ที่อยู่
-     65, // พวง_มังกรMWIT
-     80, // พวง_โลโก้36ปี
-     70, // พวง_มาสคอต
-     80, // สติ๊ก_ScienceSeries
-     95, // สติ๊ก_SchoolLifeSeries
-     65, // กระเป๋า
-     65, 65, 65, 70, // เสื้อ S-XL ขาว
-     70, 70, 70, 75, // เสื้อ S-XL กรมท่า
-     65, 120, 120,   // SetA qty/ลาย
-     65, 120, 120, 65, 70, // SetB
-     90, 70, 110,    // ราคา/ค่าส่ง/รวม
-    200, 100, 130, 200, 90 // URL/ref/เวลา/หมายเหตุ/สถานะ
+    160, 190, 140, 110, 120, // A-E  order basics
+     90, 260,                 // F-G  shipping
+     65,  80,  70,            // H-J  keychains
+     80,  95,                 // K-L  stickers
+     65,                      // M    bag
+     62,  62,  62,  65,       // N-Q  shirts white
+     65,  65,  65,  70,       // R-U  shirts dark
+     62, 120, 120,            // V-X  set A
+     62, 120, 120,  62,  70,  // Y-AC set B
+     90,  70, 115,            // AD-AF pricing
+    200, 100, 130, 200,  95,  // AG-AK payment + status
   ];
-  widths.forEach((w, i) => {
-    try { sheet.setColumnWidth(i + 1, w); } catch(_) {}
+  widths.forEach((w, i) => { try { sheet.setColumnWidth(i + 1, w); } catch(_) {} });
+}
+
+// Adds medium-weight lane dividers between column groups on data rows
+function applyGroupBorders(sheet, fromRow, rows) {
+  const divColor = '#8fa8c8';
+  const style    = SpreadsheetApp.BorderStyle.SOLID_MEDIUM;
+  GROUPS.forEach(([start]) => {
+    if (start <= 1) return;
+    sheet.getRange(fromRow, start, rows, 1)
+      .setBorder(null, true, null, null, null, null, divColor, style);
   });
 }
 
 // ── FORMAT ORDERS SHEET (run manually from GAS editor) ───
-// Applies visual styling to the Orders sheet after data exists
 function formatOrdersSheet() {
   const ss    = SpreadsheetApp.openById(CONFIG.SHEET_ID);
   const sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
@@ -294,57 +319,71 @@ function formatOrdersSheet() {
   ensureHeaders(sheet);
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) { SpreadsheetApp.getUi().alert('ยังไม่มีข้อมูล Orders'); return; }
+  const dataRows  = lastRow - 1;
+  const totalCols = DELIVER_COL; // include checkbox columns in formatting
 
-  const totalRows = lastRow - 1; // data rows
+  // ── Base font ───────────────────────────────────────────
+  sheet.getRange(1, 1, lastRow, totalCols)
+    .setFontFamily('Noto Sans Thai').setFontSize(10);
 
-  // Base font for all
-  sheet.getRange(1, 1, lastRow, HEADERS.length).setFontFamily('Noto Sans Thai').setFontSize(10);
-
-  // Re-style header
+  // ── Header row ──────────────────────────────────────────
   styleHeaderRow(sheet);
 
-  // Alternating row background
+  // ── Alternating data rows (navy blue family) ────────────
+  // Bright row: very light icy blue
+  // Dark row:   clear periwinkle — distinctly different, still easy on eyes
+  const ROW_BRIGHT = '#edf3ff';
+  const ROW_DARK   = '#cddcf8';
   for (let r = 2; r <= lastRow; r++) {
-    sheet.getRange(r, 1, 1, HEADERS.length).setBackground(r % 2 === 0 ? '#f0f4ff' : '#ffffff');
+    sheet.getRange(r, 1, 1, totalCols)
+      .setBackground(r % 2 === 0 ? ROW_BRIGHT : ROW_DARK)
+      .setVerticalAlignment('middle');
+    sheet.setRowHeight(r, 26);
   }
 
-  // Bold name column
+  // ── Column group lane dividers ──────────────────────────
+  applyGroupBorders(sheet, 2, dataRows);
+
+  // ── Name column — bold, easy to scan ───────────────────
   const nameCol = HEADERS.indexOf('ชื่อ') + 1;
-  sheet.getRange(2, nameCol, totalRows).setFontWeight('bold');
+  sheet.getRange(2, nameCol, dataRows).setFontWeight('bold');
 
-  // Address column — wrap text
+  // ── Address — wrap & top-align ─────────────────────────
   const addrCol = HEADERS.indexOf('ที่อยู่') + 1;
-  sheet.getRange(2, addrCol, totalRows).setWrap(true).setVerticalAlignment('top');
+  sheet.getRange(2, addrCol, dataRows).setWrap(true).setVerticalAlignment('top');
 
-  // Total price — bold pink
+  // ── Pricing columns ─────────────────────────────────────
+  ['ราคาสินค้า', 'ค่าส่ง'].forEach(h => {
+    const ci = HEADERS.indexOf(h) + 1;
+    sheet.getRange(2, ci, dataRows)
+      .setNumberFormat('#,##0 "฿"')
+      .setHorizontalAlignment('right');
+  });
   const totalCol = HEADERS.indexOf('รวมทั้งหมด') + 1;
-  sheet.getRange(2, totalCol, totalRows)
+  sheet.getRange(2, totalCol, dataRows)
+    .setNumberFormat('#,##0 "฿"')
     .setFontWeight('bold')
     .setFontColor('#db2777')
-    .setNumberFormat('#,##0 "฿"');
+    .setBackground('#fff0f7') // permanent pink tint — stands out in both row colours
+    .setHorizontalAlignment('right');
 
-  // Price sub-columns — number format
-  ['ราคาสินค้า', 'ค่าส่ง'].forEach(col => {
-    const ci = HEADERS.indexOf(col) + 1;
-    sheet.getRange(2, ci, totalRows).setNumberFormat('#,##0 "฿"');
-  });
+  // ── Date/time format ────────────────────────────────────
+  sheet.getRange(2, 1, dataRows).setNumberFormat('d/M/yyyy  HH:mm');
 
-  // Date format
-  sheet.getRange(2, 1, totalRows).setNumberFormat('d/M/yyyy  HH:mm');
-
-  // Row height for data rows
-  for (let r = 2; r <= lastRow; r++) sheet.setRowHeight(r, 26);
+  // ── Numeric item columns — center ──────────────────────
+  // Cols 8-29 are all qty numbers — center them
+  sheet.getRange(2, 8, dataRows, 22).setHorizontalAlignment('center');
 
   // ── Conditional formatting ──────────────────────────────
   sheet.clearConditionalFormatRules();
 
   const statusCol = HEADERS.indexOf('สถานะ') + 1;
   const shipCol   = HEADERS.indexOf('วิธีรับ') + 1;
-  const statusR   = sheet.getRange(2, statusCol, totalRows);
-  const shipR     = sheet.getRange(2, shipCol,   totalRows);
+  const statusR   = sheet.getRange(2, statusCol, dataRows);
+  const shipR     = sheet.getRange(2, shipCol,   dataRows);
 
   const cfRules = [
-    // Status badges
+    // Status cell colours (badge-style)
     SpreadsheetApp.newConditionalFormatRule()
       .whenTextEqualTo('รอยืนยัน')
       .setBackground('#fef3c7').setFontColor('#92400e').setBold(true)
@@ -357,7 +396,7 @@ function formatOrdersSheet() {
       .whenTextEqualTo('จัดส่งแล้ว')
       .setBackground('#dbeafe').setFontColor('#1e40af').setBold(true)
       .setRanges([statusR]).build(),
-    // Shipping method
+    // Shipping cell colours
     SpreadsheetApp.newConditionalFormatRule()
       .whenTextEqualTo('postal')
       .setBackground('#fce7f3').setFontColor('#9d174d').setBold(true)
@@ -369,7 +408,10 @@ function formatOrdersSheet() {
   ];
   sheet.setConditionalFormatRules(cfRules);
 
-  SpreadsheetApp.getUi().alert('✅ จัดรูปแบบ Orders sheet เรียบร้อยแล้ว!');
+  SpreadsheetApp.getUi().alert(
+    '✅ จัดรูปแบบ Orders sheet เรียบร้อย!\n\n' +
+    'หากยังไม่มี checkbox ให้ run setupCheckboxes() ด้วย'
+  );
 }
 
 // ── SUMMARY SHEET SETUP (run manually from GAS editor) ───
