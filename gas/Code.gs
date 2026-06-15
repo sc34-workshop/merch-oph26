@@ -195,10 +195,11 @@ function setupSummarySheet() {
   sumSheet = ss.insertSheet(CONFIG.SUMMARY_SHEET, 0);
 
   // Reference the Orders sheet column letters for SUMIF
+  // Every row MUST have exactly 4 elements — setValues() is strict about column count
   const data = [
-    ['📦 สรุปสินค้าที่ระลึก OPH 2026 × MWIT 36 ปี', '', ''],
-    ['(อัปเดตอัตโนมัติเมื่อมีออเดอร์ใหม่)', '', ''],
-    [''],
+    ['📦 สรุปสินค้าที่ระลึก OPH 2026 × MWIT 36 ปี', '', '', ''],
+    ['(อัปเดตอัตโนมัติเมื่อมีออเดอร์ใหม่)', '', '', ''],
+    ['', '', '', ''],
     ['สินค้า / ตัวเลือก', 'รับเอง', 'ส่งไปรษณีย์', 'รวม'],
     ['พวงกุญแจ มังกร MWIT',    '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!H2:H10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!H2:H10000)', '=B5+C5'],
     ['พวงกุญแจ โลโก้ 36 ปี',   '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!I2:I10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!I2:I10000)', '=B6+C6'],
@@ -216,12 +217,12 @@ function setupSummarySheet() {
     ['เสื้อ XL กรมท่า', '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!U2:U10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!U2:U10000)', '=B18+C18'],
     ['เซ็ต A',  '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!V2:V10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!V2:V10000)', '=B19+C19'],
     ['เซ็ต B',  '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!Y2:Y10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!Y2:Y10000)', '=B20+C20'],
-    [''],
+    ['', '', '', ''],
     ['💰 การเงิน', '', '', ''],
     ['รายได้สินค้ารวม', '', '', '=SUM(Orders!AD2:AD10000)'],
     ['รายได้ค่าส่งรวม', '', '', '=SUM(Orders!AE2:AE10000)'],
     ['รายได้ทั้งหมด',   '', '', '=SUM(Orders!AF2:AF10000)'],
-    [''],
+    ['', '', '', ''],
     ['📊 ออเดอร์', '', '', ''],
     ['ออเดอร์ทั้งหมด',   '', '', '=COUNTA(Orders!B2:B10000)'],
     ['รับที่โรงเรียน',    '', '', '=COUNTIF(Orders!F2:F10000,"pickup")'],
