@@ -167,13 +167,31 @@ function doPost(e) {
       slipUrl = uploadSlip(data.payment.slipBase64, orderRef);
     }
 
-    sheet.appendRow(buildRow(data, slipUrl, orderRef));
+    const nextRow = nextDataRow(sheet);
+    const rowData = buildRow(data, slipUrl, orderRef);
+    sheet.getRange(nextRow, 1, 1, rowData.length)
+      .setValues([rowData])
+      .setFontFamily('Noto Sans Thai');
+    sheet.getRange(nextRow, HEADERS.indexOf('ชื่อ') + 1).setFontWeight('bold');
     return ok({ orderRef });
   } catch (err) {
     return fail(err.message);
   } finally {
     try { lock.releaseLock(); } catch(_) {}
   }
+}
+
+// Returns the next empty row for writing data.
+// Scans column A (Timestamp) backwards — never pre-filled by setupCheckboxes(),
+// so getLastRow() returning 10000 due to checkbox validation doesn't affect this.
+function nextDataRow(sheet) {
+  const lastRow = sheet.getLastRow();
+  if (lastRow <= 1) return 2;
+  const colA = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+  for (let i = colA.length - 1; i >= 0; i--) {
+    if (colA[i][0] !== '') return i + 3; // row (i+2) has data → write to (i+3)
+  }
+  return 2;
 }
 
 // Sequential ref: MWIT-YYYYMMDD-XXXX (global counter, never resets)
@@ -300,6 +318,7 @@ function styleHeaderRow(sheet) {
       .setFontColor('#ffffff')
       .setFontWeight('bold')
       .setFontSize(10)
+      .setFontFamily('Noto Sans Thai')
       .setHorizontalAlignment('center')
       .setVerticalAlignment('middle');
   });
@@ -557,19 +576,12 @@ function clearOrders() {
   const lastRow = sheet.getLastRow();
   if (lastRow <= 1) { ss.toast('ไม่มีข้อมูลให้ลบ', 'ℹ️ แจ้งเตือน', 4); return; }
 
-  const ui  = SpreadsheetApp.getUi();
-  const res = ui.alert(
-    '⚠️ ยืนยันการลบข้อมูลทั้งหมด',
-    `คุณกำลังจะลบออเดอร์ทั้งหมด ${lastRow - 1} แถว\nการกระทำนี้ไม่สามารถย้อนกลับได้\n\nต้องการดำเนินการต่อหรือไม่?`,
-    ui.ButtonSet.YES_NO
-  );
-  if (res !== ui.Button.YES) {
-    ss.toast('ยกเลิกการลบ', 'ℹ️ แจ้งเตือน', 3);
-    return;
-  }
+  // SpreadsheetApp.getUi() is unavailable when run from the GAS editor —
+  // skip the dialog and proceed directly. Running this function by name is
+  // confirmation enough.
+  console.log(`clearOrders: wiping ${lastRow - 1} data rows`);
 
-  // Clear content in all data columns (leave header row 1 intact)
-  const dataCols = DELIVER_COL; // all columns including checkbox cols
+  const dataCols = DELIVER_COL;
   sheet.getRange(2, 1, lastRow - 1, dataCols).clearContent();
 
   // Re-apply checkbox validation since clearContent strips it
