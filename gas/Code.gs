@@ -7,8 +7,10 @@
 //  2. Deploy → New deployment → Web app (Execute as: Me, Anyone)
 //  3. Paste the URL into index.html and admin.html as GAS_URL
 //
-//  AFTER FIRST DATA ARRIVES:
-//  Run formatOrdersSheet() from the GAS editor to apply styling
+//  ONE-TIME SETUP (run manually from GAS editor):
+//  - setupCheckboxes()   → adds ✅/🚚 checkbox columns + onEdit auto-update
+//  - formatOrdersSheet() → applies colour formatting to all data rows
+//  - setupSummarySheet() → (re)builds the Summary tab with SUMPRODUCT formulas
 // ═══════════════════════════════════════════════════════════
 
 const CONFIG = {
@@ -31,6 +33,108 @@ const HEADERS = [
   'ราคาสินค้า', 'ค่าส่ง', 'รวมทั้งหมด',
   'URL_สลิป', 'เลขอ้างอิง', 'เวลาโอน', 'หมายเหตุ', 'สถานะ'
 ];
+
+// Checkbox columns sit immediately after สถานะ (last HEADERS column)
+const STATUS_COL  = HEADERS.length;      // col 37 = AK  (สถานะ text)
+const CONFIRM_COL = HEADERS.length + 1;  // col 38 = AL  ✅ ยืนยันชำระเงิน
+const DELIVER_COL = HEADERS.length + 2;  // col 39 = AM  🚚 จัดส่งแล้ว
+
+// ── ONEDIT TRIGGER (simple trigger — runs automatically) ──
+// When staff tick/untick a checkbox, สถานะ updates instantly.
+function onEdit(e) {
+  try {
+    const sheet = e.range.getSheet();
+    if (sheet.getName() !== CONFIG.SHEET_NAME) return;
+    const col = e.range.getColumn();
+    const row = e.range.getRow();
+    if (row <= 1) return;                         // skip header row
+    if (col !== CONFIRM_COL && col !== DELIVER_COL) return;
+
+    const confirmed = sheet.getRange(row, CONFIRM_COL).getValue() === true;
+    const delivered = sheet.getRange(row, DELIVER_COL).getValue() === true;
+
+    if (delivered) {
+      sheet.getRange(row, STATUS_COL).setValue('จัดส่งแล้ว');
+      if (!confirmed) sheet.getRange(row, CONFIRM_COL).setValue(true); // auto-tick confirm too
+    } else if (confirmed) {
+      sheet.getRange(row, STATUS_COL).setValue('ยืนยันแล้ว');
+    } else {
+      sheet.getRange(row, STATUS_COL).setValue('รอยืนยัน');
+    }
+  } catch (_) {}  // never block the user's edit
+}
+
+// ── SETUP CHECKBOXES (run once manually from GAS editor) ──
+// Adds ✅/🚚 columns, checkbox validation, initial values from existing
+// สถานะ data, and conditional formatting on the whole row.
+function setupCheckboxes() {
+  const ss    = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+  const sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
+  if (!sheet) { SpreadsheetApp.getUi().alert('ไม่พบ Orders sheet'); return; }
+  ensureHeaders(sheet);
+
+  const lastRow = sheet.getLastRow();
+  const maxData = 10000;  // validation covers rows 2 – 10000
+
+  // ── Column headers ─────────────────────────────────────
+  sheet.getRange(1, CONFIRM_COL).setValue('✅ ยืนยันชำระเงิน');
+  sheet.getRange(1, DELIVER_COL).setValue('🚚 จัดส่งแล้ว');
+  sheet.getRange(1, CONFIRM_COL, 1, 2)
+    .setBackground('#0d1b4b').setFontColor('#ffffff')
+    .setFontWeight('bold').setFontSize(11).setHorizontalAlignment('center');
+  sheet.setColumnWidth(CONFIRM_COL, 140);
+  sheet.setColumnWidth(DELIVER_COL, 115);
+
+  // ── Checkbox data validation ────────────────────────────
+  const cbValidation = SpreadsheetApp.newDataValidation().requireCheckbox().build();
+  sheet.getRange(2, CONFIRM_COL, maxData - 1).setDataValidation(cbValidation).setHorizontalAlignment('center');
+  sheet.getRange(2, DELIVER_COL, maxData - 1).setDataValidation(cbValidation).setHorizontalAlignment('center');
+
+  // ── Seed checkbox state from existing สถานะ values ─────
+  if (lastRow >= 2) {
+    const statuses    = sheet.getRange(2, STATUS_COL, lastRow - 1).getValues();
+    const confirmVals = statuses.map(r => [r[0] === 'ยืนยันแล้ว' || r[0] === 'จัดส่งแล้ว']);
+    const deliverVals = statuses.map(r => [r[0] === 'จัดส่งแล้ว']);
+    sheet.getRange(2, CONFIRM_COL, lastRow - 1).setValues(confirmVals);
+    sheet.getRange(2, DELIVER_COL, lastRow - 1).setValues(deliverVals);
+  }
+
+  // ── Conditional formatting ──────────────────────────────
+  // Highlight the entire row green when confirmed, blue when delivered
+  const allCols   = sheet.getRange(2, 1, maxData - 1, DELIVER_COL);
+  const cfConfirm = SpreadsheetApp.newConditionalFormatRule()
+    .whenFormulaSatisfied(`=$${colLetter(CONFIRM_COL)}2=TRUE`)
+    .setBackground('#ecfdf5').setFontColor('#065f46')
+    .setRanges([allCols]).build();
+  const cfDeliver = SpreadsheetApp.newConditionalFormatRule()
+    .whenFormulaSatisfied(`=$${colLetter(DELIVER_COL)}2=TRUE`)
+    .setBackground('#eff6ff').setFontColor('#1e40af')
+    .setRanges([allCols]).build();
+
+  // Keep existing rules, add ours at the top (highest priority)
+  const existing = sheet.getConditionalFormatRules().filter(r => {
+    // Drop old full-row rules from previous setupCheckboxes calls
+    const src = r.getBooleanCondition();
+    if (!src) return true;
+    const f = src.getCriteriaValues()[0] || '';
+    return !f.toString().includes(colLetter(CONFIRM_COL)) && !f.toString().includes(colLetter(DELIVER_COL));
+  });
+  sheet.setConditionalFormatRules([cfDeliver, cfConfirm, ...existing]);
+
+  SpreadsheetApp.getUi().alert(
+    '✅ ตั้งค่า Checkbox เรียบร้อย!\n\n' +
+    '• ✅ ยืนยันชำระเงิน → สถานะ = ยืนยันแล้ว\n' +
+    '• 🚚 จัดส่งแล้ว → สถานะ = จัดส่งแล้ว\n\n' +
+    'แถวจะเปลี่ยนสีอัตโนมัติเมื่อติ๊กช่อง'
+  );
+}
+
+// Convert column number to letter(s): 1→A, 26→Z, 27→AA, 38→AL
+function colLetter(n) {
+  let s = '';
+  while (n > 0) { s = String.fromCharCode(64 + (n - 1) % 26 + 1) + s; n = Math.floor((n - 1) / 26); }
+  return s;
+}
 
 // ── POST: รับ order จาก frontend ─────────────────────────
 function doPost(e) {
