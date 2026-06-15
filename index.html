@@ -353,11 +353,31 @@
     #scr-confirm > * { position:relative; z-index:1; }
 
     /* ── CONFIRM ── */
-    #scr-confirm { padding:16px; max-width:680px; margin:0 auto; }
-    .cfm-hdr { text-align:center; padding:20px 0 16px; }
+    #scr-confirm { padding:32px 16px 80px; }
+    .cfm-card {
+      background:var(--card); border-radius:24px;
+      width:100%; max-width:500px; margin:0 auto;
+      box-shadow:
+        0 2px 4px rgba(13,27,75,.06),
+        0 8px 24px rgba(13,27,75,.12),
+        0 24px 64px rgba(13,27,75,.14),
+        0 0 0 1px rgba(13,27,75,.06);
+      overflow:hidden;
+    }
+    .cfm-top {
+      background:linear-gradient(160deg,#080f28 0%,#0d1b4b 55%,#152260 100%);
+      background-image:
+        radial-gradient(circle at 1px 1px,rgba(255,255,255,.04) 1px,transparent 0),
+        linear-gradient(160deg,#080f28 0%,#0d1b4b 55%,#152260 100%);
+      background-size:24px 24px, auto;
+      padding:32px 28px 26px; text-align:center; color:#fff;
+    }
+    .cfm-top-icon { font-size:36px; margin-bottom:10px; }
     .cfm-title { font-size:22px; font-weight:800; }
-    .cfm-sub { font-size:13px; color:var(--g700); margin-top:4px; }
-    .cfm-section { margin-bottom:14px; }
+    .cfm-sub { font-size:13px; color:rgba(255,255,255,.55); margin-top:5px; }
+    .cfm-body { padding:20px 22px 8px; }
+    .cfm-section { margin-bottom:16px; }
+    .cfm-section + .cfm-section { border-top:1px solid var(--g200); padding-top:14px; }
     .cfm-sec-title { font-size:11px; font-weight:700; color:var(--pink); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:8px; }
     .cfm-row { display:flex; justify-content:space-between; align-items:flex-start; padding:7px 0; border-bottom:1px solid var(--g200); font-size:13px; gap:12px; }
     .cfm-row:last-child { border-bottom:none; }
@@ -365,7 +385,7 @@
     .cfm-val { font-weight:600; text-align:right; flex:1; }
     .cfm-total-row { display:flex; justify-content:space-between; padding:14px 0 4px; font-size:19px; font-weight:800; }
     .cfm-total-row .amt { color:var(--pink); }
-    .cfm-btns { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; padding-bottom:32px; }
+    .cfm-btns { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:16px 22px 22px; border-top:1px solid var(--g200); }
 
     /* ── SUCCESS ── */
     /* SUCCESS CARD */
@@ -551,8 +571,10 @@
     [data-theme="dark"] .os-total { border-top-color:#243050; color:#dce8ff; }
 
     /* Confirm & success screens */
-    [data-theme="dark"] #scr-confirm .card { background:#111827; }
+    [data-theme="dark"] .cfm-card { background:#111827; }
     [data-theme="dark"] .cfm-row { border-bottom-color:#243050; }
+    [data-theme="dark"] .cfm-section + .cfm-section { border-top-color:#243050; }
+    [data-theme="dark"] .cfm-btns { border-top-color:#243050; }
     [data-theme="dark"] .suc-card { background:var(--card); }
 
     /* Loader */
@@ -978,40 +1000,34 @@
      SCREEN: CONFIRM
 ═══════════════════════════════════════════════════ -->
 <div id="scr-confirm">
-  <div class="cfm-hdr">
-    <div style="font-size:32px;margin-bottom:8px;">🛒</div>
-    <div class="cfm-title">ตรวจสอบออเดอร์</div>
-    <div class="cfm-sub">กรุณาตรวจสอบให้ถูกต้องก่อนยืนยัน</div>
-  </div>
-
-  <div class="card" style="padding:16px;margin-bottom:10px;">
-    <div class="cfm-section">
-      <div class="cfm-sec-title">📦 สินค้าที่สั่ง</div>
-      <div id="cfm-items"></div>
+  <div class="cfm-card">
+    <div class="cfm-top">
+      <div class="cfm-top-icon">🛒</div>
+      <div class="cfm-title">ตรวจสอบออเดอร์</div>
+      <div class="cfm-sub">กรุณาตรวจสอบให้ถูกต้องก่อนยืนยัน</div>
     </div>
-  </div>
-
-  <div class="card" style="padding:16px;margin-bottom:10px;">
-    <div class="cfm-section">
-      <div class="cfm-sec-title">👤 ข้อมูลผู้สั่ง</div>
-      <div id="cfm-customer"></div>
+    <div class="cfm-body">
+      <div class="cfm-section">
+        <div class="cfm-sec-title">📦 สินค้าที่สั่ง</div>
+        <div id="cfm-items"></div>
+      </div>
+      <div class="cfm-section">
+        <div class="cfm-sec-title">👤 ข้อมูลผู้สั่ง</div>
+        <div id="cfm-customer"></div>
+      </div>
+      <div class="cfm-section">
+        <div class="cfm-sec-title">🚚 การจัดส่ง</div>
+        <div id="cfm-shipping"></div>
+      </div>
+      <div class="cfm-section" style="margin-bottom:0;">
+        <div class="cfm-sec-title">💰 ราคาสรุป</div>
+        <div id="cfm-pricing"></div>
+      </div>
     </div>
-    <div class="cfm-section" style="margin-bottom:0;">
-      <div class="cfm-sec-title">🚚 การจัดส่ง</div>
-      <div id="cfm-shipping"></div>
+    <div class="cfm-btns">
+      <button class="btn-s" onclick="goForm()">← แก้ไข</button>
+      <button class="btn-p" id="btn-submit" onclick="submitOrder()">✓ ยืนยันสั่งซื้อ</button>
     </div>
-  </div>
-
-  <div class="card" style="padding:16px;margin-bottom:10px;">
-    <div class="cfm-section" style="margin-bottom:0;">
-      <div class="cfm-sec-title">💰 ราคาสรุป</div>
-      <div id="cfm-pricing"></div>
-    </div>
-  </div>
-
-  <div class="cfm-btns">
-    <button class="btn-s" onclick="goForm()">← แก้ไข</button>
-    <button class="btn-p" id="btn-submit" onclick="submitOrder()">✓ ยืนยันสั่งซื้อ</button>
   </div>
 </div>
 
