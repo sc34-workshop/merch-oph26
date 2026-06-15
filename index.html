@@ -209,11 +209,12 @@
     #scr-confirm, #scr-success { display:none; }
     .hidden { display:none !important; }
 
-    /* Shared dark texture background for all three screens */
+    /* Dark texture — dark mode only */
     #scr-form, #scr-confirm {
       position:relative; overflow:hidden;
     }
-    #scr-form::before, #scr-confirm::before {
+    [data-theme="dark"] #scr-form::before,
+    [data-theme="dark"] #scr-confirm::before {
       content:''; position:fixed; inset:0; z-index:0;
       background:url('background-dark.webp') center/cover no-repeat;
       opacity:.55; pointer-events:none;
@@ -246,8 +247,8 @@
       position:relative; overflow:hidden;
     }
     #scr-success.show { display:flex; }
-    /* Background texture — pseudo-element so the card z-index is unaffected */
-    #scr-success::before {
+    /* Background texture — dark mode only */
+    [data-theme="dark"] #scr-success::before {
       content:''; position:absolute; inset:0; z-index:0;
       background:url('background-dark.webp') center/cover no-repeat;
       opacity:.55;
