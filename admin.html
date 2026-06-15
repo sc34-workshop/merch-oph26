@@ -21,11 +21,21 @@
     body { font-family:'Noto Sans Thai',sans-serif; background:var(--bg); color:var(--navy); min-height:100vh; }
 
     /* HEADER */
-    .hdr { background:var(--navy); color:#fff; padding:16px 20px 20px; }
+    .hdr {
+      background: linear-gradient(160deg, #080f28 0%, #0d1b4b 55%, #152260 100%);
+      background-image:
+        radial-gradient(ellipse 80% 60% at 15% 50%, rgba(255,255,255,.04) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 80% at 90% 10%, rgba(245,197,0,.05) 0%, transparent 60%),
+        radial-gradient(circle at 1px 1px, rgba(255,255,255,.04) 1px, transparent 0),
+        linear-gradient(160deg, #080f28 0%, #0d1b4b 55%, #152260 100%);
+      background-size: auto, auto, 24px 24px, auto;
+      color:#fff; padding:16px 20px 20px;
+    }
     .hdr-inner { max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
     .hdr-left { display:flex; align-items:center; gap:14px; }
-    .hdr-logo { background:#fff; border-radius:10px; padding:6px 14px; display:flex; align-items:center; }
-    .hdr-logo img { height:38px; width:auto; display:block; }
+    .hdr-logo { display:flex; align-items:center; }
+    .hdr-logo img { height:44px; width:auto; display:block; filter:drop-shadow(0 2px 8px rgba(0,0,0,.4)); }
+    @media(max-width:480px){ .hdr-logo img { height:34px; } }
     .hdr-left .tag { font-size:10px; font-weight:700; letter-spacing:2px; color:#f5c500; text-transform:uppercase; }
     .hdr-left h1 { font-size:20px; font-weight:800; margin-top:2px; }
     .hdr-btns { display:flex; gap:10px; flex-wrap:wrap; }
@@ -180,7 +190,7 @@
   <div class="hdr-inner">
     <div class="hdr-left">
       <div class="hdr-logo">
-        <img src="logo.png" alt="MWIT 36th Anniversary">
+        <img src="36th-logo-white.avif" alt="MWIT 36th Anniversary">
       </div>
       <div>
         <div class="tag">Admin · Merch OPH 2026</div>
