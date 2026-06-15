@@ -1300,7 +1300,11 @@ function rmErrId(inpId){
 function goShop(){
   const el = document.getElementById('scr-landing');
   el.classList.add('fly-out');
-  el.addEventListener('transitionend', () => el.style.display='none', { once:true });
+  el.addEventListener('transitionend', function h(e){
+    if (e.target !== el) return; // ignore bubbled events from children
+    el.style.display = 'none';
+    el.removeEventListener('transitionend', h);
+  });
 }
 function goConfirm(){
   if(!validate()) return;
