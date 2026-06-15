@@ -224,12 +224,62 @@
     .cfm-btns { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; padding-bottom:32px; }
 
     /* ── SUCCESS ── */
-    #scr-success { max-width:500px; margin:0 auto; text-align:center; padding:40px 16px; }
-    .suc-icon { width:80px; height:80px; background:#d1fae5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-size:36px; }
-    .suc-title { font-size:24px; font-weight:800; margin-bottom:8px; }
-    .suc-sub { font-size:14px; color:var(--g700); line-height:1.7; margin-bottom:20px; }
-    .order-badge { display:inline-block; background:var(--pink-bg); color:var(--pink); padding:10px 24px; border-radius:30px; font-size:17px; font-weight:800; letter-spacing:1px; margin-bottom:24px; border:2px solid var(--pink-l); }
-    .suc-note { background:var(--g100); border-radius:var(--rs); padding:14px; font-size:13px; color:var(--g700); line-height:1.6; text-align:left; }
+    /* SUCCESS CARD */
+    #scr-success { display:none; min-height:calc(100vh - 160px); align-items:center; justify-content:center; padding:32px 16px 80px; flex-direction:column; }
+    #scr-success.show { display:flex; }
+    .suc-card {
+      background:var(--card); border-radius:24px; width:100%; max-width:460px;
+      box-shadow:
+        0 2px 4px rgba(13,27,75,.06),
+        0 8px 24px rgba(13,27,75,.12),
+        0 24px 64px rgba(13,27,75,.14),
+        0 0 0 1px rgba(13,27,75,.06);
+      overflow:hidden;
+    }
+    .suc-top {
+      background: linear-gradient(160deg, #080f28 0%, #0d1b4b 55%, #152260 100%);
+      background-image:
+        radial-gradient(circle at 1px 1px, rgba(255,255,255,.04) 1px, transparent 0),
+        linear-gradient(160deg, #080f28 0%, #0d1b4b 55%, #152260 100%);
+      background-size: 24px 24px, auto;
+      padding:36px 28px 28px; text-align:center; color:#fff;
+    }
+    .suc-icon {
+      width:72px; height:72px; background:var(--green); border-radius:50%;
+      display:flex; align-items:center; justify-content:center; margin:0 auto 18px;
+      font-size:32px;
+      box-shadow:0 0 0 10px rgba(16,185,129,.18), 0 4px 20px rgba(16,185,129,.35);
+    }
+    .suc-title { font-size:26px; font-weight:800; margin-bottom:6px; }
+    .suc-sub { font-size:13px; color:rgba(255,255,255,.6); line-height:1.75; }
+    .suc-body { padding:24px 24px 28px; }
+    .suc-ref-label { font-size:10px; font-weight:700; color:var(--g400); text-transform:uppercase; letter-spacing:1.5px; text-align:center; margin-bottom:8px; }
+    .suc-ref-box {
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      background:var(--pink-bg); border:2px solid var(--pink-l); border-radius:14px;
+      padding:14px 18px; margin-bottom:20px;
+    }
+    .suc-ref-num { font-size:19px; font-weight:800; color:var(--pink); letter-spacing:1.5px; font-family:monospace; }
+    .suc-copy { background:none; border:none; cursor:pointer; font-size:17px; line-height:1; padding:2px; opacity:.6; transition:opacity .15s; }
+    .suc-copy:hover { opacity:1; }
+    .suc-summary { background:var(--g100); border-radius:12px; padding:16px 18px; margin-bottom:16px; font-size:13px; }
+    .suc-row { display:flex; justify-content:space-between; align-items:center; padding:5px 0; color:var(--g700); }
+    .suc-row + .suc-row { border-top:1px solid var(--g200); }
+    .suc-row.total { font-size:15px; font-weight:800; color:var(--navy); }
+    .suc-row.total span:last-child { color:var(--pink); }
+    .suc-contact { text-align:center; font-size:12px; color:var(--g400); line-height:1.7; margin-bottom:20px; }
+    .suc-btn {
+      display:block; width:100%; padding:14px; border:none; border-radius:12px;
+      font-size:15px; font-weight:700; font-family:'Noto Sans Thai',sans-serif;
+      cursor:pointer; transition:all .15s; text-align:center;
+    }
+    .suc-btn-more { background:var(--navy); color:#fff; box-shadow:0 2px 12px rgba(13,27,75,.25); }
+    .suc-btn-more:hover { background:var(--navy2); transform:translateY(-1px); box-shadow:0 4px 18px rgba(13,27,75,.35); }
+    [data-theme="dark"] .suc-top { background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,.04) 1px, transparent 0), linear-gradient(160deg, #040810 0%, #0a1330 55%, #0f1a48 100%); background-size: 24px 24px, auto; }
+    [data-theme="dark"] .suc-ref-box { background:#2a1020; border-color:#9d3060; }
+    [data-theme="dark"] .suc-summary { background:#151c2e; }
+    [data-theme="dark"] .suc-row { color:var(--g400); }
+    [data-theme="dark"] .suc-row.total { color:#dce8ff; }
 
     /* ── LOADING ── */
     .loader { position:fixed; inset:0; background:rgba(13,27,75,.65); display:none; align-items:center; justify-content:center; z-index:200; }
@@ -341,8 +391,7 @@
     /* Confirm & success screens */
     [data-theme="dark"] #scr-confirm .card { background:#111827; }
     [data-theme="dark"] .cfm-row { border-bottom-color:#243050; }
-    [data-theme="dark"] .suc-icon { background:#0d2a1a; }
-    [data-theme="dark"] .suc-note { background:#1a2538; color:#8faac8; }
+    [data-theme="dark"] .suc-card { background:var(--card); }
 
     /* Loader */
     [data-theme="dark"] .loader-box { background:#111827; color:#dce8ff; }
@@ -785,11 +834,29 @@
      SCREEN: SUCCESS
 ═══════════════════════════════════════════════════ -->
 <div id="scr-success">
-  <div class="suc-icon">✅</div>
-  <div class="suc-title">สั่งซื้อสำเร็จ!</div>
-  <div class="suc-sub">ขอบคุณที่สั่งซื้อสินค้าที่ระลึก<br>กรรมการจะตรวจสอบสลิปและยืนยันภายใน <strong>24 ชั่วโมง</strong></div>
-  <div class="order-badge" id="suc-ref">MWIT-XXXXXX</div>
-  <div class="suc-note" id="suc-summary"></div>
+  <div class="suc-card">
+
+    <div class="suc-top">
+      <div class="suc-icon">✅</div>
+      <div class="suc-title">สั่งซื้อสำเร็จ!</div>
+      <div class="suc-sub">ขอบคุณที่สั่งซื้อสินค้าที่ระลึก<br>กรรมการจะตรวจสอบสลิปและยืนยันภายใน <strong style="color:#fff;">24 ชั่วโมง</strong></div>
+    </div>
+
+    <div class="suc-body">
+      <div class="suc-ref-label">รหัสออเดอร์ของคุณ</div>
+      <div class="suc-ref-box">
+        <span class="suc-ref-num" id="suc-ref">MWIT-XXXXXXXX-XXXX</span>
+        <button class="suc-copy" onclick="copyRef()" title="คัดลอกรหัส">📋</button>
+      </div>
+
+      <div class="suc-summary" id="suc-summary"></div>
+
+      <div class="suc-contact" id="suc-contact"></div>
+
+      <button class="suc-btn suc-btn-more" onclick="orderMore()">🛍 สั่งซื้อสินค้าเพิ่มเติม</button>
+    </div>
+
+  </div>
 </div>
 
 
@@ -1113,23 +1180,14 @@ function buildConfirmScreen(){
 // ──────────────────────────────────────────────────
 //  SUBMIT
 // ──────────────────────────────────────────────────
-function genRef(){
-  const d=new Date();
-  const dt=`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
-  const hhmm=`${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}`;
-  return `MWIT-${dt}-${hhmm}`;
-}
-
 async function submitOrder(){
   const btn=document.getElementById('btn-submit');
   btn.disabled=true;
   showLoader('กำลังส่งข้อมูล...');
 
   const sub=calcSub(), ship=getShipCost();
-  const orderRef=genRef();
 
   const payload={
-    orderRef,
     customer:{
       name: document.getElementById('f-name').value.trim(),
       phone: document.getElementById('f-phone').value.trim(),
@@ -1166,7 +1224,7 @@ async function submitOrder(){
     const json = await res.json();
     if (!json.success) throw new Error(json.error || 'GAS returned failure');
     hideLoader();
-    showSuccess(orderRef, payload);
+    showSuccess(json.orderRef, payload);
   } catch(e){
     hideLoader();
     console.error('submitOrder error:', e);
@@ -1177,18 +1235,56 @@ async function submitOrder(){
 
 function showSuccess(ref, payload){
   document.getElementById('scr-confirm').style.display='none';
-  document.getElementById('scr-success').style.display='block';
-  window.scrollTo(0,0);
+  const scr = document.getElementById('scr-success');
+  scr.classList.add('show');
+  window.scrollTo({top:0, behavior:'smooth'});
 
-  document.getElementById('suc-ref').textContent=ref;
-  const sub=payload.pricing.subtotal, ship=payload.pricing.shippingCost;
-  document.getElementById('suc-summary').innerHTML=`
-    <strong>สรุปออเดอร์</strong><br>
-    📦 ราคาสินค้า: ${sub.toLocaleString()} ฿<br>
-    🚚 ค่าจัดส่ง: ${ship ? ship+' ฿' : 'ฟรี'}<br>
-    💰 ยอดรวม: <strong style="color:var(--pink)">${(sub+ship).toLocaleString()} ฿</strong><br><br>
-    ${payload.shipping.method==='postal' ? `📮 ที่อยู่: ${payload.shipping.address}<br><br>` : ''}
-    กรรมการจะยืนยันออเดอร์ทาง LINE / โทร <strong>${payload.customer.phone}</strong>`;
+  document.getElementById('suc-ref').textContent = ref || 'MWIT-XXXXXXXX-XXXX';
+
+  const sub  = payload.pricing.subtotal;
+  const ship = payload.pricing.shippingCost;
+  const isPostal = payload.shipping.method === 'postal';
+
+  document.getElementById('suc-summary').innerHTML = `
+    <div class="suc-row"><span>📦 ราคาสินค้า</span><span>${sub.toLocaleString()} ฿</span></div>
+    <div class="suc-row"><span>🚚 ค่าจัดส่ง</span><span>${ship ? ship.toLocaleString()+' ฿' : '<span style="color:var(--green);font-weight:700;">ฟรี</span>'}</span></div>
+    ${isPostal ? `<div class="suc-row"><span>📮 ที่อยู่</span><span style="text-align:right;max-width:220px;line-height:1.5;">${payload.shipping.address}</span></div>` : ''}
+    <div class="suc-row total"><span>💰 ยอดรวม</span><span>${(sub+ship).toLocaleString()} ฿</span></div>`;
+
+  document.getElementById('suc-contact').innerHTML =
+    `กรรมการจะยืนยันออเดอร์ทาง LINE / โทร<br><strong>${payload.customer.phone}</strong>`;
+}
+
+function copyRef(){
+  const ref = document.getElementById('suc-ref').textContent;
+  navigator.clipboard.writeText(ref).then(()=>toast('คัดลอกรหัสแล้ว ✓','ok')).catch(()=>{});
+}
+
+function orderMore(){
+  // Reset quantities
+  KC_DESIGNS.forEach(d => state.kc[d]=0);
+  ST_DESIGNS.forEach(d => state.st[d]=0);
+  state.tote=0;
+  SIZES.forEach(s=>COLORS.forEach(c=>{ state.shirt[`${s}_${c}`]=0; }));
+  state.setA={qty:0, keychain:'', sticker:''};
+  state.setB={qty:0, keychain:'', sticker:'', size:'', color:''};
+  state.slipB64=''; state.slipName='';
+
+  // Clear text inputs
+  ['f-name','f-phone','f-contact','f-addr','f-ref','f-note'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  // Clear radio buttons
+  document.querySelectorAll('input[type="radio"]').forEach(r=>r.checked=false);
+  const pf=document.getElementById('postal-fields');
+  if(pf) pf.style.display='none';
+
+  // Rebuild dynamic rows and reset price
+  buildKcRows(); buildStRows(); buildShirtTable(); refreshPrice();
+
+  document.getElementById('scr-success').classList.remove('show');
+  document.getElementById('scr-form').style.display='block';
+  window.scrollTo({top:0, behavior:'smooth'});
 }
 
 // ──────────────────────────────────────────────────

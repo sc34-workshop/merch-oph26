@@ -150,19 +150,42 @@ function colLetter(n) {
 
 // ── POST: รับ order จาก frontend ─────────────────────────
 function doPost(e) {
+  const lock = LockService.getScriptLock();
   try {
+    lock.waitLock(10000); // prevent race conditions on concurrent orders
     const data  = JSON.parse(e.postData.contents);
-    let slipUrl = '';
-    if (data.payment && data.payment.slipBase64 && data.payment.slipBase64.length > 100) {
-      slipUrl = uploadSlip(data.payment.slipBase64, data.orderRef || 'unknown');
-    }
     const ss    = SpreadsheetApp.openById(CONFIG.SHEET_ID);
     const sheet = getOrCreateSheet(ss, CONFIG.SHEET_NAME);
-    sheet.appendRow(buildRow(data, slipUrl));
-    return ok({ orderRef: data.orderRef });
+
+    const orderRef = generateOrderRef(sheet);
+
+    let slipUrl = '';
+    if (data.payment && data.payment.slipBase64 && data.payment.slipBase64.length > 100) {
+      slipUrl = uploadSlip(data.payment.slipBase64, orderRef);
+    }
+
+    sheet.appendRow(buildRow(data, slipUrl, orderRef));
+    return ok({ orderRef });
   } catch (err) {
     return fail(err.message);
+  } finally {
+    try { lock.releaseLock(); } catch(_) {}
   }
+}
+
+// Sequential ref: MWIT-YYYYMMDD-XXXX (global counter, never resets)
+// Called inside a LockService lock so concurrent requests can't collide.
+function generateOrderRef(sheet) {
+  const d = new Date();
+  const date = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+  const lastRow = sheet.getLastRow();
+  let count = 0;
+  if (lastRow >= 2) {
+    // Column B (index 1) = OrderRef — count rows with a non-empty ref
+    const refs = sheet.getRange(2, 2, lastRow - 1).getValues();
+    count = refs.filter(r => r[0] !== '' && r[0] !== null && r[0] !== undefined).length;
+  }
+  return `MWIT-${date}-${String(count + 1).padStart(4, '0')}`;
 }
 
 // ── GET: ส่งข้อมูลทั้งหมดให้ admin page ─────────────────
@@ -199,7 +222,7 @@ function doGet(e) {
 }
 
 // ── BUILD ROW ────────────────────────────────────────────
-function buildRow(d, slipUrl) {
+function buildRow(d, slipUrl, orderRef) {
   const items = d.items    || {};
   const kc    = items.keychain || {};
   const st    = items.sticker  || {};
@@ -213,7 +236,7 @@ function buildRow(d, slipUrl) {
 
   return [
     new Date(),
-    d.orderRef         || '',
+    orderRef           || d.orderRef || '',
     cust.name          || '',
     cust.phone         || '',
     cust.lineig        || '',
