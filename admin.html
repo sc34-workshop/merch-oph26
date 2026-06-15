@@ -121,16 +121,24 @@
     .theme-toggle:hover { transform:scale(1.12); }
 
     /* DARK THEME */
-    [data-theme="dark"] { --bg:#0f1117; --card:#1a1f2e; --g200:#2a3245; --g400:#6b7fa3; --g700:#94a3b8; }
+    /* Override CSS variables so all var(--navy) / var(--navy2) inline styles resolve to light colours */
+    [data-theme="dark"] {
+      --bg:#0f1117; --card:#1a1f2e; --g200:#2a3245; --g400:#6b7fa3; --g700:#94a3b8;
+      --navy:#94b4e8; --navy2:#5b8fd4;
+    }
     [data-theme="dark"] body { color:#dce8ff; }
     [data-theme="dark"] .stat, [data-theme="dark"] .card { background:var(--card); }
+    /* Keep header & shipping bar dark even though --navy is now light */
+    [data-theme="dark"] .hdr { background:#0d1b4b; }
+    [data-theme="dark"] .seg-pickup { background:#1e2d6b; }
     [data-theme="dark"] .orders-tbl th { background:var(--card); color:var(--g400); }
+    [data-theme="dark"] .orders-tbl td,
+    [data-theme="dark"] .item-table td { color:#dce8ff; }
     [data-theme="dark"] .item-table tr:hover td,
     [data-theme="dark"] .orders-tbl tr:hover td { background:#1f2d40; }
     [data-theme="dark"] .filter-bar input[type="text"],
     [data-theme="dark"] .filter-bar select { background:var(--card); color:#dce8ff; border-color:var(--g200); }
     [data-theme="dark"] .sample-banner { background:#2d2510; border-color:#7a3900; color:#fbbf24; }
-    [data-theme="dark"] .c-navy { color:#94b4e8; }
     [data-theme="dark"] .donut-center-num { fill:#dce8ff; }
     [data-theme="dark"] .donut-center-lbl { fill:var(--g400); }
     [data-theme="dark"] .donut-leg-lbl { color:#dce8ff; }

@@ -182,11 +182,15 @@ function doGet(e) {
     if (rows.length <= 1) return ok({ orders: [], summary: {} });
 
     const headers = rows[0];
-    const orders  = rows.slice(1).map(row => {
-      const obj = {};
-      headers.forEach((h, i) => { obj[h] = row[i]; });
-      return obj;
-    });
+    // Filter out empty rows — setupCheckboxes() adds validation to 10 000 rows,
+    // so getDataRange() returns them all; skip any row with no OrderRef.
+    const orders  = rows.slice(1)
+      .filter(row => row[1] !== '' && row[1] !== null && row[1] !== undefined)
+      .map(row => {
+        const obj = {};
+        headers.forEach((h, i) => { obj[h] = row[i]; });
+        return obj;
+      });
 
     return ok({ orders, summary: buildSummary(orders) });
   } catch (err) {
