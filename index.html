@@ -214,15 +214,15 @@
       position:fixed; inset:0; z-index:100;
       display:flex; align-items:center; justify-content:center;
       background:#080f28; overflow:hidden;
-      transition:transform .85s cubic-bezier(.76,0,.24,1);
+      transition:transform 1.05s cubic-bezier(0.16,1,0.3,1);
       will-change:transform;
     }
     #scr-landing.fly-out { transform:translateY(-100vh); }
-    /* content has its own transition so it moves ahead of the panel */
+    /* content leads the panel slightly — creates depth */
     .land-content {
-      transition:transform .6s cubic-bezier(.76,0,.24,1), opacity .45s ease;
+      transition:transform 0.7s cubic-bezier(0.16,1,0.3,1), opacity 0.4s cubic-bezier(0.4,0,1,1);
     }
-    #scr-landing.fly-out .land-content { transform:translateY(-36px); opacity:0; }
+    #scr-landing.fly-out .land-content { transform:translateY(-52px); opacity:0; }
     /* dot grid texture overlay */
     #scr-landing::after {
       content:''; position:absolute; inset:0; z-index:0;
