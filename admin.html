@@ -4,8 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard | Merch OPH 2026</title>
+  <script>(function(){var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/png" href="logo_trans.png">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -103,14 +104,36 @@
     .filter-bar select:focus { outline:none; border-color:var(--pink); }
     .row-count { font-size:12px; color:var(--g400); margin-left:auto; }
 
-    /* CHART */
-    .chart-bar-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
-    .chart-bar-row:last-child { margin-bottom:0; }
-    .chart-lbl { font-size:13px; font-weight:600; min-width:160px; text-align:right; }
-    .chart-bar-bg { flex:1; background:var(--g200); border-radius:4px; height:22px; overflow:hidden; }
-    .chart-bar-fill { height:100%; border-radius:4px; display:flex; align-items:center; padding-left:8px; font-size:12px; font-weight:700; color:white; transition:width .5s ease; white-space:nowrap; }
-    .chart-val { font-size:13px; font-weight:700; min-width:30px; color:var(--navy); }
+    /* DONUT CHART */
+    .donut-wrap { display:flex; align-items:center; gap:28px; flex-wrap:wrap; }
+    .donut-center-num { font-size:38px; font-weight:800; fill:var(--navy); font-family:'Noto Sans Thai',sans-serif; }
+    .donut-center-lbl { font-size:13px; fill:var(--g400); font-family:'Noto Sans Thai',sans-serif; }
+    .donut-legend { display:flex; flex-direction:column; gap:10px; flex:1; min-width:160px; }
+    .donut-leg-row { display:flex; align-items:center; gap:9px; }
+    .donut-leg-dot { width:13px; height:13px; border-radius:3px; flex-shrink:0; }
+    .donut-leg-lbl { font-size:13px; font-weight:600; flex:1; }
+    .donut-leg-qty { font-size:13px; font-weight:800; color:var(--pink); min-width:22px; text-align:right; }
+    .donut-leg-pct { font-size:11px; color:var(--g400); min-width:36px; text-align:right; }
     .sample-banner { background:#fef3c7; border:1px solid #f59e0b; border-radius:var(--rs); padding:8px 14px; font-size:13px; font-weight:600; color:#92400e; margin-bottom:14px; display:none; }
+
+    /* THEME TOGGLE */
+    .theme-toggle { position:fixed; bottom:22px; right:22px; width:44px; height:44px; border-radius:50%; border:none; font-size:20px; cursor:pointer; background:var(--card); box-shadow:0 2px 12px rgba(0,0,0,.2); z-index:200; transition:transform .2s; }
+    .theme-toggle:hover { transform:scale(1.12); }
+
+    /* DARK THEME */
+    [data-theme="dark"] { --bg:#0f1117; --card:#1a1f2e; --g200:#2a3245; --g400:#6b7fa3; --g700:#94a3b8; }
+    [data-theme="dark"] body { color:#dce8ff; }
+    [data-theme="dark"] .stat, [data-theme="dark"] .card { background:var(--card); }
+    [data-theme="dark"] .orders-tbl th { background:var(--card); color:var(--g400); }
+    [data-theme="dark"] .item-table tr:hover td,
+    [data-theme="dark"] .orders-tbl tr:hover td { background:#1f2d40; }
+    [data-theme="dark"] .filter-bar input[type="text"],
+    [data-theme="dark"] .filter-bar select { background:var(--card); color:#dce8ff; border-color:var(--g200); }
+    [data-theme="dark"] .sample-banner { background:#2d2510; border-color:#7a3900; color:#fbbf24; }
+    [data-theme="dark"] .c-navy { color:#94b4e8; }
+    [data-theme="dark"] .donut-center-num { fill:#dce8ff; }
+    [data-theme="dark"] .donut-center-lbl { fill:var(--g400); }
+    [data-theme="dark"] .donut-leg-lbl { color:#dce8ff; }
 
     /* LOADER */
     .loader { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px; gap:14px; }
@@ -133,6 +156,7 @@
 <body>
 
 <div class="toast" id="toast"></div>
+<button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" aria-label="สลับธีม">🌙</button>
 
 <!-- HEADER -->
 <div class="hdr">
@@ -464,37 +488,69 @@ function exportCSV() {
   toast('ดาวน์โหลด CSV แล้ว ✓', 'ok');
 }
 
-// ── CHART ──────────────────────────────────────────
+// ── DONUT CHART ────────────────────────────────────
 function renderChart() {
+  const shirtQty = ['S','M','L','XL'].reduce((s,sz)=>s+['ขาว','กรมท่า'].reduce((s2,c)=>s2+sumCol(`เสื้อ_${sz}_${c}`),0),0);
   const cats = [
-    { label:'🔑 พวงกุญแจ มังกร',   qty: sumCol('พวง_มังกรMWIT'),           color:'#0d1b4b' },
-    { label:'🔑 พวงกุญแจ โลโก้',   qty: sumCol('พวง_โลโก้36ปี'),           color:'#1e2d6b' },
-    { label:'🔑 พวงกุญแจ มาสคอต',  qty: sumCol('พวง_มาสคอต'),              color:'#3347a0' },
-    { label:'📋 สติ๊กเกอร์ Science', qty: sumCol('สติ๊ก_ScienceSeries'),    color:'#db2777' },
-    { label:'📋 สติ๊กเกอร์ School', qty: sumCol('สติ๊ก_SchoolLifeSeries'),  color:'#f472b6' },
-    { label:'👜 กระเป๋า Canvas',    qty: sumCol('กระเป๋า'),                 color:'#10b981' },
-    { label:'👕 เสื้อ (ทุกไซส์)',   qty: ['S','M','L','XL'].reduce((s,sz)=>s+['ขาว','กรมท่า'].reduce((s2,c)=>s2+sumCol(`เสื้อ_${sz}_${c}`),0),0), color:'#f59e0b' },
-    { label:'🎁 เซ็ต A (คู่หู)',    qty: sumCol('SetA_qty'),                color:'#8b5cf6' },
-    { label:'🎁 เซ็ต B (จัดเต็ม)', qty: sumCol('SetB_qty'),                color:'#6d28d9' },
+    { label:'🔑 พวงกุญแจ', qty: sumCol('พวง_มังกรMWIT')+sumCol('พวง_โลโก้36ปี')+sumCol('พวง_มาสคอต'), color:'#0d1b4b' },
+    { label:'📋 สติ๊กเกอร์', qty: sumCol('สติ๊ก_ScienceSeries')+sumCol('สติ๊ก_SchoolLifeSeries'), color:'#db2777' },
+    { label:'👜 กระเป๋า',   qty: sumCol('กระเป๋า'),   color:'#10b981' },
+    { label:'👕 เสื้อ',     qty: shirtQty,             color:'#f59e0b' },
+    { label:'🎁 เซ็ต A',   qty: sumCol('SetA_qty'),   color:'#8b5cf6' },
+    { label:'🎁 เซ็ต B',   qty: sumCol('SetB_qty'),   color:'#6d28d9' },
   ].filter(c => c.qty > 0).sort((a,b) => b.qty - a.qty);
 
   const container = document.getElementById('chart-container');
   if (!cats.length) {
-    container.innerHTML = '<div class="empty"><div class="empty-icon">📊</div><div class="empty-txt">ยังไม่มีออเดอร์</div></div>';
+    container.innerHTML = '<div class="empty"><div class="empty-icon">🍩</div><div class="empty-txt">ยังไม่มีออเดอร์</div></div>';
     return;
   }
 
-  const max = cats[0].qty;
-  container.innerHTML = cats.map(c => {
-    const pct = Math.round((c.qty / max) * 100);
-    return `<div class="chart-bar-row">
-      <div class="chart-lbl">${c.label}</div>
-      <div class="chart-bar-bg">
-        <div class="chart-bar-fill" style="width:${pct}%;background:${c.color};">${c.qty > 0 ? '' : ''}</div>
-      </div>
-      <div class="chart-val">${c.qty}</div>
+  const totalOrders = allOrders.length;
+  const totalUnits  = cats.reduce((s,c) => s+c.qty, 0);
+  const cx=120, cy=120, outerR=100, innerR=60;
+  const GAP = 1.5;
+
+  function polar(angleDeg, r) {
+    const rad = (angleDeg - 90) * Math.PI / 180;
+    return [cx + r*Math.cos(rad), cy + r*Math.sin(rad)];
+  }
+  function arcPath(startA, endA, color) {
+    const large = (endA - startA) > 180 ? 1 : 0;
+    const [x1,y1] = polar(startA, outerR);
+    const [x2,y2] = polar(endA,   outerR);
+    const [x3,y3] = polar(endA,   innerR);
+    const [x4,y4] = polar(startA, innerR);
+    return `<path d="M${x1} ${y1} A${outerR} ${outerR} 0 ${large} 1 ${x2} ${y2} L${x3} ${y3} A${innerR} ${innerR} 0 ${large} 0 ${x4} ${y4}Z" fill="${color}"/>`;
+  }
+
+  let angle = 0;
+  const paths = cats.map(c => {
+    const sweep = (c.qty / totalUnits) * 360 - GAP;
+    const start = angle + GAP/2;
+    const end   = angle + sweep + GAP/2;
+    angle += (c.qty / totalUnits) * 360;
+    return arcPath(start, end, c.color);
+  }).join('');
+
+  const legend = cats.map(c => {
+    const pct = Math.round((c.qty/totalUnits)*100);
+    return `<div class="donut-leg-row">
+      <div class="donut-leg-dot" style="background:${c.color}"></div>
+      <div class="donut-leg-lbl">${c.label}</div>
+      <div class="donut-leg-qty">${c.qty}</div>
+      <div class="donut-leg-pct">${pct}%</div>
     </div>`;
   }).join('');
+
+  container.innerHTML = `<div class="donut-wrap">
+    <svg viewBox="0 0 240 240" width="220" height="220">
+      ${paths}
+      <text x="${cx}" y="${cy-6}" text-anchor="middle" class="donut-center-num">${totalOrders}</text>
+      <text x="${cx}" y="${cy+16}" text-anchor="middle" class="donut-center-lbl">ออเดอร์</text>
+    </svg>
+    <div class="donut-legend">${legend}</div>
+  </div>`;
 }
 
 // ── SAMPLE DATA ────────────────────────────────────
@@ -580,6 +636,15 @@ function toast(msg, type='') {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
 }
+
+// ── THEME ──────────────────────────────────────────
+function toggleTheme() {
+  const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️' : '🌙';
+  localStorage.setItem('theme', next);
+}
+document.getElementById('theme-btn').textContent = document.documentElement.dataset.theme === 'dark' ? '☀️' : '🌙';
 
 // ── INIT ───────────────────────────────────────────
 loadData();
