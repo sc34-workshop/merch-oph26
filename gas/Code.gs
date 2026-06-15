@@ -87,7 +87,7 @@ function onEdit(e) {
 function setupCheckboxes() {
   const ss    = SpreadsheetApp.openById(CONFIG.SHEET_ID);
   const sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
-  if (!sheet) { SpreadsheetApp.getUi().alert('ไม่พบ Orders sheet'); return; }
+  if (!sheet) { ss.toast('ไม่พบ Orders sheet', '⚠ ข้อผิดพลาด', 5); return; }
   ensureHeaders(sheet);
 
   const lastRow = sheet.getLastRow();
@@ -138,12 +138,7 @@ function setupCheckboxes() {
   });
   sheet.setConditionalFormatRules([cfDeliver, cfConfirm, ...existing]);
 
-  SpreadsheetApp.getUi().alert(
-    '✅ ตั้งค่า Checkbox เรียบร้อย!\n\n' +
-    '• ✅ ยืนยันชำระเงิน → สถานะ = ยืนยันแล้ว\n' +
-    '• 🚚 จัดส่งแล้ว → สถานะ = จัดส่งแล้ว\n\n' +
-    'แถวจะเปลี่ยนสีอัตโนมัติเมื่อติ๊กช่อง'
-  );
+  ss.toast('✅ ยืนยัน → ยืนยันแล้ว  |  🚚 จัดส่ง → จัดส่งแล้ว  |  แถวเปลี่ยนสีอัตโนมัติ', '✅ ตั้งค่า Checkbox เรียบร้อย!', 8);
 }
 
 // Convert column number to letter(s): 1→A, 26→Z, 27→AA, 38→AL
@@ -314,11 +309,11 @@ function applyGroupBorders(sheet, fromRow, rows) {
 function formatOrdersSheet() {
   const ss    = SpreadsheetApp.openById(CONFIG.SHEET_ID);
   const sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
-  if (!sheet) { SpreadsheetApp.getUi().alert('ไม่พบ Orders sheet'); return; }
+  if (!sheet) { ss.toast('ไม่พบ Orders sheet', '⚠ ข้อผิดพลาด', 5); return; }
 
   ensureHeaders(sheet);
   const lastRow = sheet.getLastRow();
-  if (lastRow < 2) { SpreadsheetApp.getUi().alert('ยังไม่มีข้อมูล Orders'); return; }
+  if (lastRow < 2) { ss.toast('ยังไม่มีข้อมูลใน Orders', '⚠ ยังว่างเปล่า', 5); return; }
   const dataRows  = lastRow - 1;
   const totalCols = DELIVER_COL; // include checkbox columns in formatting
 
@@ -408,10 +403,7 @@ function formatOrdersSheet() {
   ];
   sheet.setConditionalFormatRules(cfRules);
 
-  SpreadsheetApp.getUi().alert(
-    '✅ จัดรูปแบบ Orders sheet เรียบร้อย!\n\n' +
-    'หากยังไม่มี checkbox ให้ run setupCheckboxes() ด้วย'
-  );
+  ss.toast('หากยังไม่มี checkbox ให้ run setupCheckboxes() ด้วย', '✅ จัดรูปแบบ Orders sheet เรียบร้อย!', 8);
 }
 
 // ── SUMMARY SHEET SETUP (run manually from GAS editor) ───
@@ -487,7 +479,7 @@ function setupSummarySheet() {
   sumSheet.setColumnWidth(3, 130);
   sumSheet.setColumnWidth(4, 110);
 
-  SpreadsheetApp.getUi().alert('✅ สร้าง Summary sheet เรียบร้อย!');
+  ss.toast('เปิดแท็บ Summary ดูได้เลย', '✅ สร้าง Summary sheet เรียบร้อย!', 6);
 }
 
 // ── SUMMARY for admin ────────────────────────────────────
