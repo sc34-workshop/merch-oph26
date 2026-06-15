@@ -143,6 +143,16 @@
     [data-theme="dark"] .donut-center-lbl { fill:var(--g400); }
     [data-theme="dark"] .donut-leg-lbl { color:#dce8ff; }
 
+    /* PAGINATION */
+    .pag-bar { display:flex; align-items:center; justify-content:flex-end; gap:10px; padding:12px 18px; border-top:1px solid var(--g200); }
+    .pag-btn { display:flex; align-items:center; justify-content:center; width:32px; height:32px; border:2px solid var(--g200); background:var(--card); color:var(--navy); border-radius:var(--rs); font-size:16px; cursor:pointer; transition:all .15s; line-height:1; }
+    .pag-btn:hover:not(:disabled) { border-color:var(--pink); color:var(--pink); }
+    .pag-btn:disabled { opacity:.35; cursor:default; }
+    .pag-info { font-size:13px; color:var(--g700); min-width:130px; text-align:center; }
+    [data-theme="dark"] .pag-btn { background:var(--card); color:#dce8ff; border-color:var(--g200); }
+    [data-theme="dark"] .pag-btn:hover:not(:disabled) { border-color:var(--pink); color:var(--pink-l); }
+    [data-theme="dark"] .pag-info { color:var(--g400); }
+
     /* LOADER */
     .loader { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px; gap:14px; }
     .spin { width:40px; height:40px; border:4px solid var(--g200); border-top-color:var(--pink); border-radius:50%; animation:spin .7s linear infinite; }
@@ -251,13 +261,13 @@
       <div class="card-title">รายการออเดอร์ทั้งหมด</div>
     </div>
     <div class="filter-bar">
-      <input type="text" id="search" placeholder="🔍 ค้นหา ชื่อ / เบอร์ / ref..." oninput="renderTable()">
-      <select id="flt-ship" onchange="renderTable()">
+      <input type="text" id="search" placeholder="🔍 ค้นหา ชื่อ / เบอร์ / ref..." oninput="currentPage=0;renderTable()">
+      <select id="flt-ship" onchange="currentPage=0;renderTable()">
         <option value="">ทุกวิธีรับ</option>
         <option value="pickup">รับที่โรงเรียน</option>
         <option value="postal">ไปรษณีย์</option>
       </select>
-      <select id="flt-status" onchange="renderTable()">
+      <select id="flt-status" onchange="currentPage=0;renderTable()">
         <option value="">ทุกสถานะ</option>
         <option value="รอยืนยัน">รอยืนยัน</option>
         <option value="ยืนยันแล้ว">ยืนยันแล้ว</option>
@@ -287,6 +297,7 @@
         </tbody>
       </table>
     </div>
+    <div id="pagination-bar"></div>
   </div>
 
 </div><!-- /wrap -->
@@ -297,6 +308,8 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbwvJe703djgufierApBftXR
 
 // ── STATE ──────────────────────────────────────────
 let allOrders = [];
+let currentPage = 0;
+const PAGE_SIZE = 100;
 
 // ── LOAD ───────────────────────────────────────────
 async function loadData() {
@@ -420,7 +433,7 @@ function renderTable() {
   const fltShip   = document.getElementById('flt-ship').value;
   const fltStatus = document.getElementById('flt-status').value;
 
-  let filtered = allOrders.filter(o => {
+  const filtered = allOrders.filter(o => {
     const matchSearch = !search ||
       (o['ชื่อ']||'').toLowerCase().includes(search) ||
       (o['เบอร์โทร']||'').includes(search) ||
@@ -430,21 +443,31 @@ function renderTable() {
     return matchSearch && matchShip && matchSts;
   });
 
-  document.getElementById('row-count').textContent = `${filtered.length} รายการ`;
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  if (currentPage >= totalPages) currentPage = totalPages - 1;
+  const start = currentPage * PAGE_SIZE;
+  const end   = Math.min(start + PAGE_SIZE, total);
+  const paged = filtered.slice(start, end);
 
-  if (!filtered.length) {
+  document.getElementById('row-count').textContent =
+    total > PAGE_SIZE ? `${start+1}–${end} จาก ${total} รายการ` : `${total} รายการ`;
+
+  if (!paged.length) {
     document.getElementById('orders-tbody').innerHTML =
       `<tr><td colspan="11"><div class="empty"><div class="empty-icon">🔍</div><div class="empty-txt">ไม่พบรายการ</div></div></td></tr>`;
+    document.getElementById('pagination-bar').innerHTML = '';
     return;
   }
 
-  document.getElementById('orders-tbody').innerHTML = filtered.map((o, i) => {
+  document.getElementById('orders-tbody').innerHTML = paged.map((o, i) => {
+    const rowNum      = start + i + 1;
     const itemSummary = buildItemSummary(o);
     const shipLabel   = o['วิธีรับ'] === 'postal' ? '📮 ไปรษณีย์' : '🏫 รับเอง';
     const slipLink    = o['URL_สลิป'] ? `<a href="${o['URL_สลิป']}" target="_blank" style="color:var(--pink);text-decoration:none;font-weight:700;">ดูสลิป</a>` : '–';
     const statusBadge = statusBadgeHtml(o['สถานะ']);
     return `<tr>
-      <td style="color:var(--g400);">${i+1}</td>
+      <td style="color:var(--g400);">${rowNum}</td>
       <td style="font-family:monospace;font-size:11px;color:var(--navy2);">${o['OrderRef']||'–'}</td>
       <td><strong>${o['ชื่อ']||'–'}</strong>${o['LINE_IG']?`<br><span style="font-size:11px;color:var(--g400);">${o['LINE_IG']}</span>`:''}</td>
       <td>${o['เบอร์โทร']||'–'}</td>
@@ -457,6 +480,21 @@ function renderTable() {
       <td>${statusBadge}</td>
     </tr>`;
   }).join('');
+
+  // Pagination bar — only render when more than one page
+  const bar = document.getElementById('pagination-bar');
+  if (totalPages <= 1) { bar.innerHTML = ''; return; }
+  bar.innerHTML = `<div class="pag-bar">
+    <button class="pag-btn" onclick="changePage(-1)" ${currentPage===0?'disabled':''}>&larr;</button>
+    <span class="pag-info">${start+1}–${end} จาก ${total}</span>
+    <button class="pag-btn" onclick="changePage(1)" ${currentPage>=totalPages-1?'disabled':''}>&rarr;</button>
+  </div>`;
+}
+
+function changePage(delta) {
+  currentPage += delta;
+  renderTable();
+  document.querySelector('.orders-tbl').closest('.card').scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
 function buildItemSummary(o) {
