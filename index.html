@@ -209,6 +209,19 @@
     #scr-confirm, #scr-success { display:none; }
     .hidden { display:none !important; }
 
+    /* Shared dark texture background for all three screens */
+    #scr-form, #scr-confirm {
+      position:relative; overflow:hidden;
+    }
+    #scr-form::before, #scr-confirm::before {
+      content:''; position:fixed; inset:0; z-index:0;
+      background:url('background-dark.webp') center/cover no-repeat;
+      opacity:.55; pointer-events:none;
+    }
+    /* Lift all direct children above the texture */
+    #scr-form > * { position:relative; z-index:1; }
+    #scr-confirm > * { position:relative; z-index:1; }
+
     /* ── CONFIRM ── */
     #scr-confirm { padding:16px; max-width:680px; margin:0 auto; }
     .cfm-hdr { text-align:center; padding:20px 0 16px; }
