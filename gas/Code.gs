@@ -11,6 +11,9 @@
 //  - setupCheckboxes()   → adds ✅/🚚 checkbox columns + onEdit auto-update
 //  - formatOrdersSheet() → applies colour formatting to all data rows
 //  - setupSummarySheet() → (re)builds the Summary tab with SUMPRODUCT formulas
+//
+//  MAINTENANCE (run manually — DESTRUCTIVE):
+//  - clearOrders()       → wipes all data rows, keeps header + validation intact
 // ═══════════════════════════════════════════════════════════
 
 const CONFIG = {
@@ -542,6 +545,42 @@ function uploadSlip(base64Data, orderRef) {
 }
 
 // ── HELPERS ──────────────────────────────────────────────
+// ── CLEAR ORDERS (run manually from GAS editor — DESTRUCTIVE) ────────────────
+// Wipes every data row while keeping the header row and checkbox validation.
+// Requires manual confirmation via a UI dialog so it can't be triggered by
+// accident. Run from: GAS editor → select clearOrders → ▶ Run
+function clearOrders() {
+  const ss    = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+  const sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
+  if (!sheet) { ss.toast('ไม่พบ Orders sheet', '⚠ ข้อผิดพลาด', 5); return; }
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow <= 1) { ss.toast('ไม่มีข้อมูลให้ลบ', 'ℹ️ แจ้งเตือน', 4); return; }
+
+  const ui  = SpreadsheetApp.getUi();
+  const res = ui.alert(
+    '⚠️ ยืนยันการลบข้อมูลทั้งหมด',
+    `คุณกำลังจะลบออเดอร์ทั้งหมด ${lastRow - 1} แถว\nการกระทำนี้ไม่สามารถย้อนกลับได้\n\nต้องการดำเนินการต่อหรือไม่?`,
+    ui.ButtonSet.YES_NO
+  );
+  if (res !== ui.Button.YES) {
+    ss.toast('ยกเลิกการลบ', 'ℹ️ แจ้งเตือน', 3);
+    return;
+  }
+
+  // Clear content in all data columns (leave header row 1 intact)
+  const dataCols = DELIVER_COL; // all columns including checkbox cols
+  sheet.getRange(2, 1, lastRow - 1, dataCols).clearContent();
+
+  // Re-apply checkbox validation since clearContent strips it
+  const cbValidation = SpreadsheetApp.newDataValidation().requireCheckbox().build();
+  const maxData = 10000;
+  sheet.getRange(2, CONFIRM_COL, maxData - 1).setDataValidation(cbValidation).setHorizontalAlignment('center');
+  sheet.getRange(2, DELIVER_COL, maxData - 1).setDataValidation(cbValidation).setHorizontalAlignment('center');
+
+  ss.toast(`ลบออเดอร์ ${lastRow - 1} แถวเรียบร้อยแล้ว`, '✅ ล้างข้อมูลสำเร็จ', 5);
+}
+
 function n(v)    { return parseInt(v) || 0; }
 function ok(d)   { return resp({ success: true,  ...d }); }
 function fail(m) { return resp({ success: false, error: m }); }
