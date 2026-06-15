@@ -311,6 +311,9 @@
   </div>
 
 </div><!-- /wrap -->
+<footer style="text-align:center;padding:18px;font-size:11px;color:var(--g400);">
+  Merch OPH 2026 × MWIT 36th Anniversary &nbsp;·&nbsp; Dev: <strong>Tidsanat Kaewlad</strong> (MWIT-SC 34) &nbsp;·&nbsp; MWIT IT Recruitment
+</footer>
 
 <script>
 // ── CONFIG ──────────────────────────────────────────
@@ -695,8 +698,12 @@ const SAMPLE_ORDERS = (function() {
     const addr = isPostal ? addrs[i % addrs.length] : '';
     const fields = products[i % products.length];
     const status = statuses[i % statuses.length];
-    const ref = String(i).padStart(4,'0');
-    orders.push(mkOrder(`MWIT-2026-${ref}`, name, phone, ship, addr, fields, status));
+    // Simulate a realistic timestamp-based ref: MWIT-YYYYMMDD-HHMM
+    const base = new Date(2026, 5, 1, 8, 0); // June 1 2026 08:00
+    base.setMinutes(base.getMinutes() + i * 47); // spread ~47min apart
+    const dd = `${base.getFullYear()}${String(base.getMonth()+1).padStart(2,'0')}${String(base.getDate()).padStart(2,'0')}`;
+    const hhmm = `${String(base.getHours()).padStart(2,'0')}${String(base.getMinutes()).padStart(2,'0')}`;
+    orders.push(mkOrder(`MWIT-${dd}-${hhmm}`, name, phone, ship, addr, fields, status));
   }
   return orders;
 })();

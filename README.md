@@ -133,3 +133,5 @@ The `admin.html` page ships a **Sample Data** button (📊) that loads 150 gener
 
 Built by the **IT Recruitment team, MWIT Science Club Batch 34** for OPH 2026.  
 School: [Mahidol Wittayanusorn School](https://www.mwit.ac.th) · ครบรอบ 36 ปี มหิดลวิทยานุสรณ์
+
+**Developer:** Tidsanat Kaewlad (MWIT-SC 34)

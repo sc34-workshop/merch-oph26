@@ -718,6 +718,10 @@
 
   </div><!-- /wrap -->
 
+  <footer style="text-align:center;padding:18px;font-size:11px;color:var(--g400);">
+    Merch OPH 2026 × MWIT 36th Anniversary &nbsp;·&nbsp; Dev: <strong>Tidsanat Kaewlad</strong> (MWIT-SC 34) &nbsp;·&nbsp; MWIT IT Recruitment
+  </footer>
+
   <!-- ── PRICE BAR (mobile only) ── -->
   <div class="pbar">
     <div class="pbar-inner">
@@ -1112,8 +1116,8 @@ function buildConfirmScreen(){
 function genRef(){
   const d=new Date();
   const dt=`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
-  const rnd=Math.floor(Math.random()*9000+1000);
-  return `MWIT-${dt}-${rnd}`;
+  const hhmm=`${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}`;
+  return `MWIT-${dt}-${hhmm}`;
 }
 
 async function submitOrder(){
