@@ -1299,12 +1299,14 @@ function rmErrId(inpId){
 // ──────────────────────────────────────────────────
 function goShop(){
   const el = document.getElementById('scr-landing');
-  el.classList.add('fly-out');
-  el.addEventListener('transitionend', function h(e){
-    if (e.target !== el) return; // ignore bubbled events from children
-    el.style.display = 'none';
-    el.removeEventListener('transitionend', h);
-  });
+  setTimeout(() => {
+    el.classList.add('fly-out');
+    el.addEventListener('transitionend', function h(e){
+      if (e.target !== el) return;
+      el.style.display = 'none';
+      el.removeEventListener('transitionend', h);
+    });
+  }, 400);
 }
 function goConfirm(){
   if(!validate()) return;
