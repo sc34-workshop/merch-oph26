@@ -2,13 +2,13 @@
 //  Merch Order Form · Google Apps Script Backend
 //  OPH 2026 × MWIT 36 ปี
 //
-//  SETUP INSTRUCTIONS:
-//  1. Create a new Google Sheet → copy the Sheet ID from the URL
-//  2. Create a folder in Google Drive for slips → copy the Folder ID
-//  3. Paste both IDs in CONFIG below
-//  4. In GAS editor: Deploy → New deployment → Web app
-//     Execute as: Me | Who has access: Anyone
-//  5. Copy the deployment URL → paste into index.html and admin.html
+//  SETUP:
+//  1. Set SHEET_ID and DRIVE_FOLDER_ID in CONFIG below
+//  2. Deploy → New deployment → Web app (Execute as: Me, Anyone)
+//  3. Paste the URL into index.html and admin.html as GAS_URL
+//
+//  AFTER FIRST DATA ARRIVES:
+//  Run formatOrdersSheet() from the GAS editor to apply styling
 // ═══════════════════════════════════════════════════════════
 
 const CONFIG = {
@@ -18,7 +18,6 @@ const CONFIG = {
   DRIVE_FOLDER_ID: 'PASTE_YOUR_DRIVE_FOLDER_ID_HERE'
 };
 
-// Column headers — order matters, must match buildRow()
 const HEADERS = [
   'Timestamp', 'OrderRef', 'ชื่อ', 'เบอร์โทร', 'LINE_IG',
   'วิธีรับ', 'ที่อยู่',
@@ -36,21 +35,15 @@ const HEADERS = [
 // ── POST: รับ order จาก frontend ─────────────────────────
 function doPost(e) {
   try {
-    const data = JSON.parse(e.postData.contents);
-
-    // Upload slip to Drive if provided
+    const data  = JSON.parse(e.postData.contents);
     let slipUrl = '';
     if (data.payment && data.payment.slipBase64 && data.payment.slipBase64.length > 100) {
       slipUrl = uploadSlip(data.payment.slipBase64, data.orderRef || 'unknown');
     }
-
     const ss    = SpreadsheetApp.openById(CONFIG.SHEET_ID);
     const sheet = getOrCreateSheet(ss, CONFIG.SHEET_NAME);
-
     sheet.appendRow(buildRow(data, slipUrl));
-
     return ok({ orderRef: data.orderRef });
-
   } catch (err) {
     return fail(err.message);
   }
@@ -62,11 +55,16 @@ function doGet(e) {
     const ss    = SpreadsheetApp.openById(CONFIG.SHEET_ID);
     const sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
 
-    if (!sheet || sheet.getLastRow() <= 1) {
+    if (!sheet || sheet.getLastRow() === 0) {
       return ok({ orders: [], summary: {} });
     }
 
-    const rows    = sheet.getDataRange().getValues();
+    // Auto-fix: insert header row if data exists but headers are missing
+    ensureHeaders(sheet);
+
+    const rows = sheet.getDataRange().getValues();
+    if (rows.length <= 1) return ok({ orders: [], summary: {} });
+
     const headers = rows[0];
     const orders  = rows.slice(1).map(row => {
       const obj = {};
@@ -75,7 +73,6 @@ function doGet(e) {
     });
 
     return ok({ orders, summary: buildSummary(orders) });
-
   } catch (err) {
     return fail(err.message);
   }
@@ -96,12 +93,12 @@ function buildRow(d, slipUrl) {
 
   return [
     new Date(),
-    d.orderRef        || '',
-    cust.name         || '',
-    cust.phone        || '',
-    cust.lineig       || '',
-    ship.method       || '',
-    ship.address      || '',
+    d.orderRef         || '',
+    cust.name          || '',
+    cust.phone         || '',
+    cust.lineig        || '',
+    ship.method        || '',
+    ship.address       || '',
     n(kc['มังกร MWIT']),
     n(kc['โลโก้ 36 ปี']),
     n(kc['มาสคอต']),
@@ -116,17 +113,241 @@ function buildRow(d, slipUrl) {
     n(price.shippingCost),
     n(price.total),
     slipUrl,
-    pay.refNumber     || '',
-    pay.datetime      || '',
-    d.notes           || '',
+    pay.refNumber  || '',
+    pay.datetime   || '',
+    d.notes        || '',
     'รอยืนยัน'
   ];
+}
+
+// ── SHEET INIT & HEADER FIX ──────────────────────────────
+function getOrCreateSheet(ss, name) {
+  let sheet = ss.getSheetByName(name);
+  if (!sheet) sheet = ss.insertSheet(name);
+  ensureHeaders(sheet);
+  return sheet;
+}
+
+// Inserts header row if missing (detects by checking A1 = 'Timestamp')
+function ensureHeaders(sheet) {
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(HEADERS);
+    styleHeaderRow(sheet);
+    return;
+  }
+  const a1 = sheet.getRange(1, 1).getValue();
+  if (a1 !== 'Timestamp') {
+    // Data row at row 1 with no header — push data down and insert headers
+    sheet.insertRowBefore(1);
+    sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
+    styleHeaderRow(sheet);
+  }
+}
+
+function styleHeaderRow(sheet) {
+  sheet.setFrozenRows(1);
+  const ncols = HEADERS.length;
+  sheet.getRange(1, 1, 1, ncols)
+    .setBackground('#0d1b4b')
+    .setFontColor('#ffffff')
+    .setFontWeight('bold')
+    .setFontSize(11);
+
+  // Column widths (one per header column)
+  const widths = [
+    160, // Timestamp
+    190, // OrderRef
+    140, // ชื่อ
+    110, // เบอร์โทร
+    120, // LINE_IG
+     90, // วิธีรับ
+    260, // ที่อยู่
+     65, // พวง_มังกรMWIT
+     80, // พวง_โลโก้36ปี
+     70, // พวง_มาสคอต
+     80, // สติ๊ก_ScienceSeries
+     95, // สติ๊ก_SchoolLifeSeries
+     65, // กระเป๋า
+     65, 65, 65, 70, // เสื้อ S-XL ขาว
+     70, 70, 70, 75, // เสื้อ S-XL กรมท่า
+     65, 120, 120,   // SetA qty/ลาย
+     65, 120, 120, 65, 70, // SetB
+     90, 70, 110,    // ราคา/ค่าส่ง/รวม
+    200, 100, 130, 200, 90 // URL/ref/เวลา/หมายเหตุ/สถานะ
+  ];
+  widths.forEach((w, i) => {
+    try { sheet.setColumnWidth(i + 1, w); } catch(_) {}
+  });
+}
+
+// ── FORMAT ORDERS SHEET (run manually from GAS editor) ───
+// Applies visual styling to the Orders sheet after data exists
+function formatOrdersSheet() {
+  const ss    = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+  const sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
+  if (!sheet) { SpreadsheetApp.getUi().alert('ไม่พบ Orders sheet'); return; }
+
+  ensureHeaders(sheet);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) { SpreadsheetApp.getUi().alert('ยังไม่มีข้อมูล Orders'); return; }
+
+  const totalRows = lastRow - 1; // data rows
+
+  // Base font for all
+  sheet.getRange(1, 1, lastRow, HEADERS.length).setFontFamily('Noto Sans Thai').setFontSize(10);
+
+  // Re-style header
+  styleHeaderRow(sheet);
+
+  // Alternating row background
+  for (let r = 2; r <= lastRow; r++) {
+    sheet.getRange(r, 1, 1, HEADERS.length).setBackground(r % 2 === 0 ? '#f0f4ff' : '#ffffff');
+  }
+
+  // Bold name column
+  const nameCol = HEADERS.indexOf('ชื่อ') + 1;
+  sheet.getRange(2, nameCol, totalRows).setFontWeight('bold');
+
+  // Address column — wrap text
+  const addrCol = HEADERS.indexOf('ที่อยู่') + 1;
+  sheet.getRange(2, addrCol, totalRows).setWrap(true).setVerticalAlignment('top');
+
+  // Total price — bold pink
+  const totalCol = HEADERS.indexOf('รวมทั้งหมด') + 1;
+  sheet.getRange(2, totalCol, totalRows)
+    .setFontWeight('bold')
+    .setFontColor('#db2777')
+    .setNumberFormat('#,##0 "฿"');
+
+  // Price sub-columns — number format
+  ['ราคาสินค้า', 'ค่าส่ง'].forEach(col => {
+    const ci = HEADERS.indexOf(col) + 1;
+    sheet.getRange(2, ci, totalRows).setNumberFormat('#,##0 "฿"');
+  });
+
+  // Date format
+  sheet.getRange(2, 1, totalRows).setNumberFormat('d/M/yyyy  HH:mm');
+
+  // Row height for data rows
+  for (let r = 2; r <= lastRow; r++) sheet.setRowHeight(r, 26);
+
+  // ── Conditional formatting ──────────────────────────────
+  sheet.clearConditionalFormatRules();
+
+  const statusCol = HEADERS.indexOf('สถานะ') + 1;
+  const shipCol   = HEADERS.indexOf('วิธีรับ') + 1;
+  const statusR   = sheet.getRange(2, statusCol, totalRows);
+  const shipR     = sheet.getRange(2, shipCol,   totalRows);
+
+  const cfRules = [
+    // Status badges
+    SpreadsheetApp.newConditionalFormatRule()
+      .whenTextEqualTo('รอยืนยัน')
+      .setBackground('#fef3c7').setFontColor('#92400e').setBold(true)
+      .setRanges([statusR]).build(),
+    SpreadsheetApp.newConditionalFormatRule()
+      .whenTextEqualTo('ยืนยันแล้ว')
+      .setBackground('#d1fae5').setFontColor('#065f46').setBold(true)
+      .setRanges([statusR]).build(),
+    SpreadsheetApp.newConditionalFormatRule()
+      .whenTextEqualTo('จัดส่งแล้ว')
+      .setBackground('#dbeafe').setFontColor('#1e40af').setBold(true)
+      .setRanges([statusR]).build(),
+    // Shipping method
+    SpreadsheetApp.newConditionalFormatRule()
+      .whenTextEqualTo('postal')
+      .setBackground('#fce7f3').setFontColor('#9d174d').setBold(true)
+      .setRanges([shipR]).build(),
+    SpreadsheetApp.newConditionalFormatRule()
+      .whenTextEqualTo('pickup')
+      .setBackground('#e0f2fe').setFontColor('#0c4a6e').setBold(true)
+      .setRanges([shipR]).build(),
+  ];
+  sheet.setConditionalFormatRules(cfRules);
+
+  SpreadsheetApp.getUi().alert('✅ จัดรูปแบบ Orders sheet เรียบร้อยแล้ว!');
+}
+
+// ── SUMMARY SHEET SETUP (run manually from GAS editor) ───
+function setupSummarySheet() {
+  const ss     = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+  let sumSheet = ss.getSheetByName(CONFIG.SUMMARY_SHEET);
+  if (sumSheet) ss.deleteSheet(sumSheet);
+  sumSheet = ss.insertSheet(CONFIG.SUMMARY_SHEET, 0);
+
+  const data = [
+    ['📦 สรุปสินค้าที่ระลึก OPH 2026 × MWIT 36 ปี', '', '', ''],
+    ['(อัปเดตอัตโนมัติเมื่อมีออเดอร์ใหม่)', '', '', ''],
+    ['', '', '', ''],
+    ['สินค้า / ตัวเลือก', 'รับเอง', 'ส่งไปรษณีย์', 'รวม'],
+    ['พวงกุญแจ มังกร MWIT',     '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!H2:H10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!H2:H10000)', '=B5+C5'],
+    ['พวงกุญแจ โลโก้ 36 ปี',    '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!I2:I10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!I2:I10000)', '=B6+C6'],
+    ['พวงกุญแจ มาสคอต',         '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!J2:J10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!J2:J10000)', '=B7+C7'],
+    ['สติ๊กเกอร์ Science Series',     '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!K2:K10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!K2:K10000)', '=B8+C8'],
+    ['สติ๊กเกอร์ School Life Series', '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!L2:L10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!L2:L10000)', '=B9+C9'],
+    ['กระเป๋า Canvas Tote',     '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!M2:M10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!M2:M10000)', '=B10+C10'],
+    ['เสื้อ S ขาว',    '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!N2:N10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!N2:N10000)', '=B11+C11'],
+    ['เสื้อ M ขาว',    '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!O2:O10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!O2:O10000)', '=B12+C12'],
+    ['เสื้อ L ขาว',    '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!P2:P10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!P2:P10000)', '=B13+C13'],
+    ['เสื้อ XL ขาว',   '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!Q2:Q10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!Q2:Q10000)', '=B14+C14'],
+    ['เสื้อ S กรมท่า',  '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!R2:R10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!R2:R10000)', '=B15+C15'],
+    ['เสื้อ M กรมท่า',  '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!S2:S10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!S2:S10000)', '=B16+C16'],
+    ['เสื้อ L กรมท่า',  '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!T2:T10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!T2:T10000)', '=B17+C17'],
+    ['เสื้อ XL กรมท่า', '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!U2:U10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!U2:U10000)', '=B18+C18'],
+    ['เซ็ต A', '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!V2:V10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!V2:V10000)', '=B19+C19'],
+    ['เซ็ต B', '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!Y2:Y10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!Y2:Y10000)', '=B20+C20'],
+    ['', '', '', ''],
+    ['💰 การเงิน', '', '', ''],
+    ['รายได้สินค้ารวม', '', '', '=SUM(Orders!AD2:AD10000)'],
+    ['รายได้ค่าส่งรวม', '', '', '=SUM(Orders!AE2:AE10000)'],
+    ['รายได้ทั้งหมด',   '', '', '=SUM(Orders!AF2:AF10000)'],
+    ['', '', '', ''],
+    ['📊 ออเดอร์', '', '', ''],
+    ['ออเดอร์ทั้งหมด',  '', '', '=COUNTA(Orders!B2:B10000)'],
+    ['รับที่โรงเรียน',   '', '', '=COUNTIF(Orders!F2:F10000,"pickup")'],
+    ['ส่งไปรษณีย์',      '', '', '=COUNTIF(Orders!F2:F10000,"postal")'],
+    ['รอยืนยัน',         '', '', '=COUNTIF(Orders!AJ2:AJ10000,"รอยืนยัน")'],
+    ['ยืนยันแล้ว',        '', '', '=COUNTIF(Orders!AJ2:AJ10000,"ยืนยันแล้ว")'],
+    ['จัดส่งแล้ว',        '', '', '=COUNTIF(Orders!AJ2:AJ10000,"จัดส่งแล้ว")'],
+  ];
+
+  sumSheet.getRange(1, 1, data.length, 4).setValues(data);
+
+  // Styling
+  sumSheet.getRange(1, 1, 1, 4).setBackground('#0d1b4b').setFontColor('#ffffff').setFontWeight('bold').setFontSize(13);
+  sumSheet.getRange(2, 1, 1, 4).setBackground('#1e2d6b').setFontColor('#94a3b8').setFontSize(10).setFontStyle('italic');
+  sumSheet.getRange(4, 1, 1, 4).setBackground('#db2777').setFontColor('#ffffff').setFontWeight('bold');
+  sumSheet.getRange(22, 1, 1, 4).setBackground('#1e3a8a').setFontColor('#ffffff').setFontWeight('bold');
+  sumSheet.getRange(27, 1, 1, 4).setBackground('#1e3a8a').setFontColor('#ffffff').setFontWeight('bold');
+
+  // Alternating rows for product list (rows 5-20)
+  for (let r = 5; r <= 20; r++) {
+    sumSheet.getRange(r, 1, 1, 4).setBackground(r % 2 === 0 ? '#f0f4ff' : '#ffffff');
+    sumSheet.getRange(r, 4).setFontWeight('bold').setFontColor('#0d1b4b');
+  }
+
+  // Money rows
+  ['D23','D24','D25'].forEach((cell, i) => {
+    sumSheet.getRange(23 + i, 4).setNumberFormat('#,##0 "฿"').setFontWeight('bold').setFontColor('#db2777');
+  });
+
+  // Borders on data area
+  sumSheet.getRange(4, 1, 17, 4).setBorder(true, true, true, true, true, false, '#e2e8f0', SpreadsheetApp.BorderStyle.SOLID);
+  sumSheet.getRange(22, 1, 10, 4).setBorder(true, true, true, true, true, false, '#e2e8f0', SpreadsheetApp.BorderStyle.SOLID);
+
+  sumSheet.setFrozenRows(4);
+  sumSheet.setColumnWidth(1, 220);
+  sumSheet.setColumnWidth(2, 110);
+  sumSheet.setColumnWidth(3, 130);
+  sumSheet.setColumnWidth(4, 110);
+
+  SpreadsheetApp.getUi().alert('✅ สร้าง Summary sheet เรียบร้อย!');
 }
 
 // ── SUMMARY for admin ────────────────────────────────────
 function buildSummary(orders) {
   const s = {
-    totalOrders: orders.length,
+    totalOrders:  orders.length,
     totalRevenue: orders.reduce((t, o) => t + n(o['รวมทั้งหมด']), 0),
     shipping: {
       pickup: orders.filter(o => o['วิธีรับ'] === 'pickup').length,
@@ -134,17 +355,14 @@ function buildSummary(orders) {
     },
     items: {}
   };
-
-  // Aggregate every numeric column
   const numCols = HEADERS.filter((_, i) => i >= 7 && i <= 28);
   numCols.forEach(col => {
     s.items[col] = orders.reduce((t, o) => t + n(o[col]), 0);
   });
-
   return s;
 }
 
-// ── DRIVE: อัปโหลดสลิป ────────────────────────────────────
+// ── DRIVE: อัปโหลดสลิป ───────────────────────────────────
 function uploadSlip(base64Data, orderRef) {
   try {
     const raw    = base64Data.includes(',') ? base64Data.split(',')[1] : base64Data;
@@ -154,29 +372,11 @@ function uploadSlip(base64Data, orderRef) {
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
     return file.getUrl();
   } catch (_) {
-    return ''; // slip upload failed — don't block the order
+    return '';
   }
 }
 
-// ── SHEET INIT ────────────────────────────────────────────
-function getOrCreateSheet(ss, name) {
-  let sheet = ss.getSheetByName(name);
-  if (!sheet) {
-    sheet = ss.insertSheet(name);
-    sheet.appendRow(HEADERS);
-    sheet.setFrozenRows(1);
-    // Style header row
-    const hdrRange = sheet.getRange(1, 1, 1, HEADERS.length);
-    hdrRange.setBackground('#0d1b4b').setFontColor('#ffffff').setFontWeight('bold');
-    sheet.setColumnWidth(1, 150);  // Timestamp
-    sheet.setColumnWidth(2, 180);  // OrderRef
-    sheet.setColumnWidth(3, 140);  // ชื่อ
-    sheet.setColumnWidth(7, 250);  // ที่อยู่
-  }
-  return sheet;
-}
-
-// ── HELPERS ───────────────────────────────────────────────
+// ── HELPERS ──────────────────────────────────────────────
 function n(v)    { return parseInt(v) || 0; }
 function ok(d)   { return resp({ success: true,  ...d }); }
 function fail(m) { return resp({ success: false, error: m }); }
@@ -184,66 +384,4 @@ function resp(d) {
   return ContentService
     .createTextOutput(JSON.stringify(d))
     .setMimeType(ContentService.MimeType.JSON);
-}
-
-// ── OPTIONAL: สร้าง Summary sheet อัตโนมัติ ──────────────
-// เรียกด้วยมือจาก GAS editor เพื่อสร้าง Summary tab
-function setupSummarySheet() {
-  const ss     = SpreadsheetApp.openById(CONFIG.SHEET_ID);
-  let sumSheet = ss.getSheetByName(CONFIG.SUMMARY_SHEET);
-  if (sumSheet) ss.deleteSheet(sumSheet);
-  sumSheet = ss.insertSheet(CONFIG.SUMMARY_SHEET, 0);
-
-  // Reference the Orders sheet column letters for SUMIF
-  // Every row MUST have exactly 4 elements — setValues() is strict about column count
-  const data = [
-    ['📦 สรุปสินค้าที่ระลึก OPH 2026 × MWIT 36 ปี', '', '', ''],
-    ['(อัปเดตอัตโนมัติเมื่อมีออเดอร์ใหม่)', '', '', ''],
-    ['', '', '', ''],
-    ['สินค้า / ตัวเลือก', 'รับเอง', 'ส่งไปรษณีย์', 'รวม'],
-    ['พวงกุญแจ มังกร MWIT',    '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!H2:H10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!H2:H10000)', '=B5+C5'],
-    ['พวงกุญแจ โลโก้ 36 ปี',   '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!I2:I10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!I2:I10000)', '=B6+C6'],
-    ['พวงกุญแจ มาสคอต',        '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!J2:J10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!J2:J10000)', '=B7+C7'],
-    ['สติ๊กเกอร์ Science Series',    '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!K2:K10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!K2:K10000)', '=B8+C8'],
-    ['สติ๊กเกอร์ School Life Series', '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!L2:L10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!L2:L10000)', '=B9+C9'],
-    ['กระเป๋า Canvas Tote',    '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!M2:M10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!M2:M10000)', '=B10+C10'],
-    ['เสื้อ S ขาว',   '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!N2:N10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!N2:N10000)', '=B11+C11'],
-    ['เสื้อ M ขาว',   '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!O2:O10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!O2:O10000)', '=B12+C12'],
-    ['เสื้อ L ขาว',   '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!P2:P10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!P2:P10000)', '=B13+C13'],
-    ['เสื้อ XL ขาว',  '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!Q2:Q10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!Q2:Q10000)', '=B14+C14'],
-    ['เสื้อ S กรมท่า',  '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!R2:R10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!R2:R10000)', '=B15+C15'],
-    ['เสื้อ M กรมท่า',  '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!S2:S10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!S2:S10000)', '=B16+C16'],
-    ['เสื้อ L กรมท่า',  '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!T2:T10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!T2:T10000)', '=B17+C17'],
-    ['เสื้อ XL กรมท่า', '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!U2:U10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!U2:U10000)', '=B18+C18'],
-    ['เซ็ต A',  '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!V2:V10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!V2:V10000)', '=B19+C19'],
-    ['เซ็ต B',  '=SUMPRODUCT((Orders!F2:F10000="pickup")*Orders!Y2:Y10000)', '=SUMPRODUCT((Orders!F2:F10000="postal")*Orders!Y2:Y10000)', '=B20+C20'],
-    ['', '', '', ''],
-    ['💰 การเงิน', '', '', ''],
-    ['รายได้สินค้ารวม', '', '', '=SUM(Orders!AD2:AD10000)'],
-    ['รายได้ค่าส่งรวม', '', '', '=SUM(Orders!AE2:AE10000)'],
-    ['รายได้ทั้งหมด',   '', '', '=SUM(Orders!AF2:AF10000)'],
-    ['', '', '', ''],
-    ['📊 ออเดอร์', '', '', ''],
-    ['ออเดอร์ทั้งหมด',   '', '', '=COUNTA(Orders!B2:B10000)'],
-    ['รับที่โรงเรียน',    '', '', '=COUNTIF(Orders!F2:F10000,"pickup")'],
-    ['ส่งไปรษณีย์',       '', '', '=COUNTIF(Orders!F2:F10000,"postal")'],
-    ['รอยืนยัน',          '', '', '=COUNTIF(Orders!AJ2:AJ10000,"รอยืนยัน")'],
-    ['ยืนยันแล้ว',         '', '', '=COUNTIF(Orders!AJ2:AJ10000,"ยืนยันแล้ว")'],
-    ['จัดส่งแล้ว',         '', '', '=COUNTIF(Orders!AJ2:AJ10000,"จัดส่งแล้ว")'],
-  ];
-
-  sumSheet.getRange(1, 1, data.length, 4).setValues(data);
-
-  // Header styling
-  sumSheet.getRange(1,1,1,4).setBackground('#0d1b4b').setFontColor('#ffffff').setFontWeight('bold').setFontSize(13);
-  sumSheet.getRange(4,1,1,4).setBackground('#db2777').setFontColor('#ffffff').setFontWeight('bold');
-  sumSheet.getRange(22,1,1,4).setBackground('#1e3a8a').setFontColor('#ffffff').setFontWeight('bold');
-  sumSheet.getRange(27,1,1,4).setBackground('#1e3a8a').setFontColor('#ffffff').setFontWeight('bold');
-  sumSheet.setFrozenRows(4);
-  sumSheet.setColumnWidth(1, 220);
-  sumSheet.setColumnWidth(2, 110);
-  sumSheet.setColumnWidth(3, 130);
-  sumSheet.setColumnWidth(4, 110);
-
-  SpreadsheetApp.getUi().alert('✅ สร้าง Summary sheet เรียบร้อย! เปิดแท็บ Summary ดูได้เลย');
 }
