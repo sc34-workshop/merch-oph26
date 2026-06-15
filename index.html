@@ -317,6 +317,19 @@
       box-shadow:0 12px 40px rgba(219,39,119,.5);
     }
     .land-cta:active { transform:scale(.97); }
+    .land-cta.loading {
+      pointer-events:none; animation:none;
+      opacity:.7; padding:16px 24px;
+      transition:opacity .15s ease, padding .15s ease;
+    }
+    .land-spin {
+      display:inline-block; width:22px; height:22px;
+      border:2.5px solid rgba(255,255,255,.25);
+      border-top-color:#fff; border-radius:50%;
+      animation:ctaSpin .65s linear infinite;
+      vertical-align:middle;
+    }
+    @keyframes ctaSpin { to { transform:rotate(360deg); } }
     @keyframes lfIn {
       from { opacity:0; transform:translateY(18px); }
       to   { opacity:1; transform:translateY(0); }
@@ -1298,6 +1311,9 @@ function rmErrId(inpId){
 //  NAVIGATION
 // ──────────────────────────────────────────────────
 function goShop(){
+  const btn = document.querySelector('.land-cta');
+  btn.innerHTML = '<span class="land-spin"></span>';
+  btn.classList.add('loading');
   const el = document.getElementById('scr-landing');
   setTimeout(() => {
     el.classList.add('fly-out');
