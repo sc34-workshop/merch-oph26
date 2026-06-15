@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard | Merch OPH 2026</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="logo_trans.png">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -16,7 +17,7 @@
       --r: 14px; --rs: 8px;
       --sh: 0 1px 4px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
     }
-    body { font-family:'Sarabun',sans-serif; background:var(--bg); color:var(--navy); min-height:100vh; }
+    body { font-family:'Noto Sans Thai',sans-serif; background:var(--bg); color:var(--navy); min-height:100vh; }
 
     /* HEADER */
     .hdr { background:var(--navy); color:#fff; padding:16px 20px 20px; }
@@ -27,7 +28,7 @@
     .hdr-left .tag { font-size:10px; font-weight:700; letter-spacing:2px; color:#f5c500; text-transform:uppercase; }
     .hdr-left h1 { font-size:20px; font-weight:800; margin-top:2px; }
     .hdr-btns { display:flex; gap:10px; flex-wrap:wrap; }
-    .btn { padding:9px 18px; border-radius:var(--rs); font-size:13px; font-weight:700; font-family:'Sarabun',sans-serif; cursor:pointer; border:none; transition:all .15s; }
+    .btn { padding:9px 18px; border-radius:var(--rs); font-size:13px; font-weight:700; font-family:'Noto Sans Thai',sans-serif; cursor:pointer; border:none; transition:all .15s; }
     .btn-p { background:var(--pink); color:white; }
     .btn-p:hover { background:#be185d; }
     .btn-g { background:var(--green); color:white; }
@@ -96,11 +97,20 @@
 
     /* FILTER BAR */
     .filter-bar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; padding:12px 18px; border-bottom:1px solid var(--g200); }
-    .filter-bar input[type="text"] { padding:7px 12px; border:2px solid var(--g200); border-radius:var(--rs); font-size:13px; font-family:'Sarabun',sans-serif; color:var(--navy); width:180px; }
+    .filter-bar input[type="text"] { padding:7px 12px; border:2px solid var(--g200); border-radius:var(--rs); font-size:13px; font-family:'Noto Sans Thai',sans-serif; color:var(--navy); width:180px; }
     .filter-bar input:focus { outline:none; border-color:var(--pink); }
-    .filter-bar select { padding:7px 28px 7px 10px; border:2px solid var(--g200); border-radius:var(--rs); font-size:13px; font-family:'Sarabun',sans-serif; color:var(--navy); background:white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%2394a3b8' d='M5 6 0 0h10z'/%3E%3C/svg%3E") no-repeat right 8px center; appearance:none; cursor:pointer; }
+    .filter-bar select { padding:7px 28px 7px 10px; border:2px solid var(--g200); border-radius:var(--rs); font-size:13px; font-family:'Noto Sans Thai',sans-serif; color:var(--navy); background:white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%2394a3b8' d='M5 6 0 0h10z'/%3E%3C/svg%3E") no-repeat right 8px center; appearance:none; cursor:pointer; }
     .filter-bar select:focus { outline:none; border-color:var(--pink); }
     .row-count { font-size:12px; color:var(--g400); margin-left:auto; }
+
+    /* CHART */
+    .chart-bar-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+    .chart-bar-row:last-child { margin-bottom:0; }
+    .chart-lbl { font-size:13px; font-weight:600; min-width:160px; text-align:right; }
+    .chart-bar-bg { flex:1; background:var(--g200); border-radius:4px; height:22px; overflow:hidden; }
+    .chart-bar-fill { height:100%; border-radius:4px; display:flex; align-items:center; padding-left:8px; font-size:12px; font-weight:700; color:white; transition:width .5s ease; white-space:nowrap; }
+    .chart-val { font-size:13px; font-weight:700; min-width:30px; color:var(--navy); }
+    .sample-banner { background:#fef3c7; border:1px solid #f59e0b; border-radius:var(--rs); padding:8px 14px; font-size:13px; font-weight:600; color:#92400e; margin-bottom:14px; display:none; }
 
     /* LOADER */
     .loader { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px; gap:14px; }
@@ -114,7 +124,7 @@
     .empty-txt { font-size:15px; }
 
     /* STATUS PILL */
-    .status-sel { appearance:none; border:none; border-radius:20px; padding:3px 10px; font-size:11px; font-weight:700; font-family:'Sarabun',sans-serif; cursor:pointer; }
+    .status-sel { appearance:none; border:none; border-radius:20px; padding:3px 10px; font-size:11px; font-weight:700; font-family:'Noto Sans Thai',sans-serif; cursor:pointer; }
     .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%) translateY(-80px); background:#1e293b; color:white; padding:10px 18px; border-radius:var(--rs); font-size:13px; font-weight:600; z-index:300; transition:transform .3s; }
     .toast.show { transform:translateX(-50%) translateY(0); }
     .toast.ok { background:var(--green); }
@@ -138,6 +148,7 @@
     </div>
     <div class="hdr-btns">
       <button class="btn btn-o" onclick="loadData()">🔄 รีเฟรช</button>
+      <button class="btn btn-o" onclick="loadSampleData()">📊 Sample Data</button>
       <button class="btn btn-g" onclick="exportCSV()">⬇ Export CSV</button>
       <a href="index.html" class="btn btn-p" style="text-decoration:none;">+ ดูฟอร์ม</a>
     </div>
@@ -168,6 +179,16 @@
       <div class="stat-lbl">จัดส่งไปรษณีย์</div>
       <div class="stat-val c-green" id="s-postal">–</div>
       <div class="stat-sub" id="s-pickup-sub">รับเองอีก – ออเดอร์</div>
+    </div>
+  </div>
+
+  <div class="sample-banner" id="sample-banner">⚠ แสดงข้อมูล SAMPLE DATA — ไม่ใช่ข้อมูลจริง กดรีเฟรชเพื่อโหลดข้อมูลจาก Google Sheets</div>
+
+  <!-- POPULARITY CHART -->
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-hdr"><div class="card-title">📈 สินค้ายอดนิยม (จำนวนที่สั่งรวม)</div></div>
+    <div class="card-body" id="chart-container">
+      <div class="loader"><div class="spin"></div><div class="loader-txt">กำลังโหลด...</div></div>
     </div>
   </div>
 
@@ -253,6 +274,7 @@ async function loadData() {
     const json = await res.json();
     if (!json.success) throw new Error(json.error);
     allOrders = json.orders || [];
+    document.getElementById('sample-banner').style.display = 'none';
     renderAll();
     document.getElementById('meta-txt').textContent = `อัปเดตล่าสุด: ${new Date().toLocaleString('th-TH')} · ${allOrders.length} ออเดอร์`;
   } catch (e) {
@@ -264,6 +286,7 @@ async function loadData() {
 // ── RENDER ALL ─────────────────────────────────────
 function renderAll() {
   renderStats();
+  renderChart();
   renderItemSummary();
   renderShipSummary();
   renderTable();
@@ -441,30 +464,108 @@ function exportCSV() {
   toast('ดาวน์โหลด CSV แล้ว ✓', 'ok');
 }
 
-// ── MOCK DATA (when GAS_URL not set) ───────────────
-function renderMock() {
-  allOrders = [
-    { OrderRef:'MWIT-20260615-1234', ชื่อ:'สมชาย ใจดี', เบอร์โทร:'0812345678', LINE_IG:'somchai_ig',
-      วิธีรับ:'postal', ที่อยู่:'123 ถ.พระราม กรุงเทพฯ 10100',
-      พวง_มังกรMWIT:2, พวง_โลโก้36ปี:0, พวง_มาสคอต:1,
-      'สติ๊ก_ScienceSeries':0, 'สติ๊ก_SchoolLifeSeries':2,
-      กระเป๋า:1, เสื้อ_L_ขาว:1, เสื้อ_M_กรมท่า:0,
-      เสื้อ_S_ขาว:0, เสื้อ_M_ขาว:0, เสื้อ_XL_ขาว:0, เสื้อ_S_กรมท่า:0, เสื้อ_L_กรมท่า:0, เสื้อ_XL_กรมท่า:0,
-      SetA_qty:1, SetA_ลายพวง:'มังกร MWIT', SetA_ลายสติ๊ก:'Science Series',
-      SetB_qty:0, SetB_ลายพวง:'', SetB_ลายสติ๊ก:'', SetB_ไซส์:'', SetB_สี:'',
-      ราคาสินค้า:641, ค่าส่ง:50, รวมทั้งหมด:691, URL_สลิป:'', เลขอ้างอิง:'482910', สถานะ:'รอยืนยัน' },
-    { OrderRef:'MWIT-20260615-5678', ชื่อ:'มานี มีใจ', เบอร์โทร:'0898765432', LINE_IG:'',
-      วิธีรับ:'pickup', ที่อยู่:'',
-      พวง_มังกรMWIT:0, พวง_โลโก้36ปี:1, พวง_มาสคอต:0,
-      'สติ๊ก_ScienceSeries':1, 'สติ๊ก_SchoolLifeSeries':0,
-      กระเป๋า:0, เสื้อ_L_ขาว:0, เสื้อ_M_กรมท่า:1,
-      เสื้อ_S_ขาว:0, เสื้อ_M_ขาว:0, เสื้อ_XL_ขาว:0, เสื้อ_S_กรมท่า:0, เสื้อ_L_กรมท่า:0, เสื้อ_XL_กรมท่า:0,
-      SetA_qty:0, SetA_ลายพวง:'', SetA_ลายสติ๊ก:'',
-      SetB_qty:1, SetB_ลายพวง:'มาสคอต', SetB_ลายสติ๊ก:'School Life Series', SetB_ไซส์:'M', SetB_สี:'กรมท่า',
-      ราคาสินค้า:822, ค่าส่ง:0, รวมทั้งหมด:822, URL_สลิป:'', เลขอ้างอิง:'881234', สถานะ:'ยืนยันแล้ว' },
-  ];
+// ── CHART ──────────────────────────────────────────
+function renderChart() {
+  const cats = [
+    { label:'🔑 พวงกุญแจ มังกร',   qty: sumCol('พวง_มังกรMWIT'),           color:'#0d1b4b' },
+    { label:'🔑 พวงกุญแจ โลโก้',   qty: sumCol('พวง_โลโก้36ปี'),           color:'#1e2d6b' },
+    { label:'🔑 พวงกุญแจ มาสคอต',  qty: sumCol('พวง_มาสคอต'),              color:'#3347a0' },
+    { label:'📋 สติ๊กเกอร์ Science', qty: sumCol('สติ๊ก_ScienceSeries'),    color:'#db2777' },
+    { label:'📋 สติ๊กเกอร์ School', qty: sumCol('สติ๊ก_SchoolLifeSeries'),  color:'#f472b6' },
+    { label:'👜 กระเป๋า Canvas',    qty: sumCol('กระเป๋า'),                 color:'#10b981' },
+    { label:'👕 เสื้อ (ทุกไซส์)',   qty: ['S','M','L','XL'].reduce((s,sz)=>s+['ขาว','กรมท่า'].reduce((s2,c)=>s2+sumCol(`เสื้อ_${sz}_${c}`),0),0), color:'#f59e0b' },
+    { label:'🎁 เซ็ต A (คู่หู)',    qty: sumCol('SetA_qty'),                color:'#8b5cf6' },
+    { label:'🎁 เซ็ต B (จัดเต็ม)', qty: sumCol('SetB_qty'),                color:'#6d28d9' },
+  ].filter(c => c.qty > 0).sort((a,b) => b.qty - a.qty);
+
+  const container = document.getElementById('chart-container');
+  if (!cats.length) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">📊</div><div class="empty-txt">ยังไม่มีออเดอร์</div></div>';
+    return;
+  }
+
+  const max = cats[0].qty;
+  container.innerHTML = cats.map(c => {
+    const pct = Math.round((c.qty / max) * 100);
+    return `<div class="chart-bar-row">
+      <div class="chart-lbl">${c.label}</div>
+      <div class="chart-bar-bg">
+        <div class="chart-bar-fill" style="width:${pct}%;background:${c.color};">${c.qty > 0 ? '' : ''}</div>
+      </div>
+      <div class="chart-val">${c.qty}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── SAMPLE DATA ────────────────────────────────────
+function mkOrder(ref, name, phone, ship, addr, fields, status) {
+  const base = {
+    OrderRef: ref, ชื่อ: name, เบอร์โทร: phone, LINE_IG: '',
+    วิธีรับ: ship, ที่อยู่: addr,
+    พวง_มังกรMWIT:0, พวง_โลโก้36ปี:0, พวง_มาสคอต:0,
+    'สติ๊ก_ScienceSeries':0, 'สติ๊ก_SchoolLifeSeries':0,
+    กระเป๋า:0,
+    เสื้อ_S_ขาว:0, เสื้อ_M_ขาว:0, เสื้อ_L_ขาว:0, เสื้อ_XL_ขาว:0,
+    เสื้อ_S_กรมท่า:0, เสื้อ_M_กรมท่า:0, เสื้อ_L_กรมท่า:0, เสื้อ_XL_กรมท่า:0,
+    SetA_qty:0, SetA_ลายพวง:'', SetA_ลายสติ๊ก:'',
+    SetB_qty:0, SetB_ลายพวง:'', SetB_ลายสติ๊ก:'', SetB_ไซส์:'', SetB_สี:'',
+    URL_สลิป:'', เลขอ้างอิง:'', สถานะ: status,
+  };
+  Object.assign(base, fields);
+  // compute totals from field values
+  const P = { kc:69, st:35, tote:149, shirt:279, setA:89, setB:449 };
+  const sub = (base['พวง_มังกรMWIT']+base['พวง_โลโก้36ปี']+base['พวง_มาสคอต'])*P.kc
+            + (base['สติ๊ก_ScienceSeries']+base['สติ๊ก_SchoolLifeSeries'])*P.st
+            + base['กระเป๋า']*P.tote
+            + (['S','M','L','XL'].reduce((s,sz)=>['ขาว','กรมท่า'].reduce((s2,c)=>s2+base[`เสื้อ_${sz}_${c}`],s),0))*P.shirt
+            + base['SetA_qty']*P.setA
+            + base['SetB_qty']*P.setB;
+  const shipping = ship === 'postal' ? 50 : 0;
+  base['ราคาสินค้า'] = sub;
+  base['ค่าส่ง'] = shipping;
+  base['รวมทั้งหมด'] = sub + shipping;
+  return base;
+}
+
+const SAMPLE_ORDERS = [
+  mkOrder('MWIT-2026-0001','สมชาย ใจดี','0812345678','postal','123 ถ.พระราม 4 กรุงเทพฯ 10110',
+    { พวง_มังกรMWIT:2, พวง_โลโก้36ปี:1, 'สติ๊ก_ScienceSeries':2, กระเป๋า:1 },'รอยืนยัน'),
+  mkOrder('MWIT-2026-0002','มานี มีใจ','0898765432','pickup','',
+    { กระเป๋า:1, เสื้อ_M_ขาว:2 },'ยืนยันแล้ว'),
+  mkOrder('MWIT-2026-0003','วีระ วิเศษ','0854321098','postal','56/7 ถ.รัชดา กรุงเทพฯ 10310',
+    { SetB_qty:1, SetB_ลายพวง:'มังกร MWIT', SetB_ลายสติ๊ก:'Science Series', SetB_ไซส์:'L', SetB_สี:'ขาว' },'รอยืนยัน'),
+  mkOrder('MWIT-2026-0004','นิดา นิ่มนวล','0867654321','pickup','',
+    { พวง_มาสคอต:1, SetA_qty:2, SetA_ลายพวง:'โลโก้ 36 ปี', SetA_ลายสติ๊ก:'School Life Series' },'จัดส่งแล้ว'),
+  mkOrder('MWIT-2026-0005','ภัทร ภาคภูมิ','0834567890','pickup','',
+    { 'สติ๊ก_SchoolLifeSeries':1, เสื้อ_L_กรมท่า:1 },'รอยืนยัน'),
+  mkOrder('MWIT-2026-0006','กิตติ กิจการ','0876543210','postal','89 ถ.สุขุมวิท กรุงเทพฯ 10110',
+    { กระเป๋า:2, SetA_qty:1, SetA_ลายพวง:'มาสคอต', SetA_ลายสติ๊ก:'Science Series' },'ยืนยันแล้ว'),
+  mkOrder('MWIT-2026-0007','สุดา สุขสันต์','0823456789','postal','12/3 ถ.ลาดพร้าว กรุงเทพฯ 10230',
+    { พวง_มังกรMWIT:3, พวง_มาสคอต:1, เสื้อ_S_ขาว:1 },'รอยืนยัน'),
+  mkOrder('MWIT-2026-0008','ชัยวัฒน์ ชนะ','0845678901','pickup','',
+    { SetB_qty:2, SetB_ลายพวง:'มาสคอต', SetB_ลายสติ๊ก:'School Life Series', SetB_ไซส์:'M', SetB_สี:'กรมท่า' },'จัดส่งแล้ว'),
+  mkOrder('MWIT-2026-0009','ปิยะ ปิ่นแก้ว','0856789012','pickup','',
+    { 'สติ๊ก_ScienceSeries':2, 'สติ๊ก_SchoolLifeSeries':1, กระเป๋า:1 },'ยืนยันแล้ว'),
+  mkOrder('MWIT-2026-0010','มนัส มนตรี','0867890123','postal','34 ถ.พระราม 9 กรุงเทพฯ 10310',
+    { พวง_โลโก้36ปี:2, 'สติ๊ก_ScienceSeries':1, เสื้อ_XL_กรมท่า:1 },'รอยืนยัน'),
+  mkOrder('MWIT-2026-0011','ธัญ ธำรง','0878901234','pickup','',
+    { SetA_qty:1, SetA_ลายพวง:'มังกร MWIT', SetA_ลายสติ๊ก:'Science Series', เสื้อ_M_กรมท่า:1 },'ยืนยันแล้ว'),
+  mkOrder('MWIT-2026-0012','พรรณี พรรณงาม','0889012345','postal','78 ถ.นวมินทร์ กรุงเทพฯ 10230',
+    { พวง_มังกรMWIT:1, กระเป๋า:2, SetB_qty:1, SetB_ลายพวง:'โลโก้ 36 ปี', SetB_ลายสติ๊ก:'School Life Series', SetB_ไซส์:'S', SetB_สี:'ขาว' },'รอยืนยัน'),
+];
+
+function loadSampleData() {
+  allOrders = SAMPLE_ORDERS;
   renderAll();
-  document.getElementById('meta-txt').textContent = '⚠ Demo mode — ตั้งค่า GAS_URL เพื่อดูข้อมูลจริง';
+  document.getElementById('meta-txt').textContent = `📊 SAMPLE DATA — ${allOrders.length} ออเดอร์ตัวอย่าง (ยอดรวม ${allOrders.reduce((s,o)=>s+num(o['รวมทั้งหมด']),0).toLocaleString()} ฿)`;
+  document.getElementById('sample-banner').style.display = 'block';
+  toast('โหลด Sample Data แล้ว ✓', 'ok');
+}
+
+// ── MOCK DATA (when GAS load fails) ────────────────
+function renderMock() {
+  loadSampleData();
+  document.getElementById('meta-txt').textContent = '⚠ โหลดข้อมูลไม่ได้ — แสดง Sample Data แทน';
 }
 
 // ── UTILS ──────────────────────────────────────────
